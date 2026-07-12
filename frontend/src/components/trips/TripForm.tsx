@@ -318,11 +318,11 @@ export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFor
                         <div className="grid grid-cols-2 gap-2 text-[10px] pt-2 border-t border-border/20">
                           <div>
                             <span className="block font-semibold text-muted-foreground">MAX LOAD</span>
-                            <span className="font-bold text-foreground">{currentVehicle.capacity.toLocaleString()} lbs</span>
+                            <span className="font-bold text-foreground">{currentVehicle.capacity.toLocaleString('en-IN')} kg</span>
                           </div>
                           <div>
                             <span className="block font-semibold text-muted-foreground">ODOMETER</span>
-                            <span className="font-bold text-foreground">{currentVehicle.odometer.toLocaleString()} mi</span>
+                            <span className="font-bold text-foreground">{currentVehicle.odometer.toLocaleString('en-IN')} km</span>
                           </div>
                         </div>
                       </div>
@@ -435,7 +435,7 @@ export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFor
                   )}
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Cargo Weight (lbs)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Cargo Weight (kg)</label>
                   <Input
                     type="number"
                     className="h-9 text-xs rounded-lg border-border/60"
@@ -448,12 +448,12 @@ export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFor
                   )}
                   {currentVehicle && cargoWeight > currentVehicle.capacity && (
                     <p className="text-[9px] text-rose-500 font-semibold mt-1">
-                      Exceeds vehicle capacity ({currentVehicle.capacity.toLocaleString()} lbs)
+                      Exceeds vehicle capacity ({currentVehicle.capacity.toLocaleString('en-IN')} kg)
                     </p>
                   )}
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Declared Cargo Value ($)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Declared Cargo Value (₹)</label>
                   <Input
                     type="number"
                     className="h-9 text-xs rounded-lg border-border/60"
@@ -471,7 +471,7 @@ export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFor
                 <textarea
                   rows={3}
                   className="w-full text-xs p-3 rounded-lg border border-border/60 bg-background focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/50"
-                  placeholder="e.g. Handle with care, secure straps every 100 miles, etc..."
+                  placeholder="e.g. Handle with care, secure straps every 100 km, etc..."
                   {...register('specialInstructions')}
                 />
               </div>
@@ -486,7 +486,7 @@ export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFor
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Expected Revenue ($)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Expected Revenue (₹)</label>
                   <Input
                     type="number"
                     className="h-9 text-xs rounded-lg border-border/60"
@@ -499,7 +499,7 @@ export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFor
                   )}
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Estimated Fuel Cost ($)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Estimated Fuel Cost (₹)</label>
                   <Input
                     type="number"
                     className="h-9 text-xs rounded-lg border-border/60"
@@ -512,7 +512,7 @@ export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFor
                   )}
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Estimated Toll Fees ($)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Estimated Toll Fees (₹)</label>
                   <Input
                     type="number"
                     className="h-9 text-xs rounded-lg border-border/60"
@@ -525,7 +525,7 @@ export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFor
                   )}
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Est. Other Expenses ($)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Est. Other Expenses (₹)</label>
                   <Input
                     type="number"
                     className="h-9 text-xs rounded-lg border-border/60"
@@ -554,7 +554,7 @@ export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFor
                   <div className="p-3 bg-rose-500/5 border border-rose-500/20 rounded-xl flex items-start gap-2.5 text-rose-600 font-semibold">
                     <ShieldAlert className="h-4.5 w-4.5 flex-shrink-0 mt-0.5 text-rose-500" />
                     <div className="text-[10px] leading-relaxed">
-                      <span className="font-extrabold">OVERWEIGHT BLOCK:</span> Selected cargo weight ({cargoWeight.toLocaleString()} lbs) exceeds max vehicle capacity ({currentVehicle.capacity.toLocaleString()} lbs). Please adjust cargo weight or choose a vehicle with greater capacity.
+                      <span className="font-extrabold">OVERWEIGHT BLOCK:</span> Selected cargo weight ({cargoWeight.toLocaleString('en-IN')} kg) exceeds max vehicle capacity ({currentVehicle.capacity.toLocaleString('en-IN')} kg). Please adjust cargo weight or choose a vehicle with greater capacity.
                     </div>
                   </div>
                 )}

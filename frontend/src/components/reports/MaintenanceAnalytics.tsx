@@ -49,7 +49,7 @@ export function MaintenanceAnalytics({ data }: MaintenanceAnalyticsProps) {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
-          title="Maintenance Expenses Trend ($)"
+          title="Maintenance Expenses Trend (₹)"
           type="area"
           data={data.maintenanceTrend}
           dataKeys={['value']}

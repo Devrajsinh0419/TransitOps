@@ -39,7 +39,7 @@ export function FuelLineChart({ data = defaultData, isLoading = false }: FuelLin
     <Card className="p-5 select-none h-72 flex flex-col justify-between">
       <div className="border-b border-border/60 pb-2">
         <h3 className="text-sm font-bold text-foreground">Fuel Spend Trend</h3>
-        <p className="text-[10px] text-muted-foreground">Daily fuel costs ($) vs consumption (L)</p>
+        <p className="text-[10px] text-muted-foreground">Daily fuel costs (₹) vs consumption (L)</p>
       </div>
 
       <div className="flex-1 min-h-0 pt-3 relative">
@@ -74,7 +74,7 @@ export function FuelLineChart({ data = defaultData, isLoading = false }: FuelLin
             <Line
               type="monotone"
               dataKey="cost"
-              name="Spend ($)"
+              name="Spend (₹)"
               stroke="#2563eb"
               strokeWidth={2}
               dot={{ r: 3 }}

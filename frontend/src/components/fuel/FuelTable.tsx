@@ -116,7 +116,7 @@ export function FuelTable({ logs }: FuelTableProps) {
                       {log.fuelType}
                     </td>
                     <td className="p-3 align-middle text-right font-semibold text-foreground">
-                      {log.quantity.toLocaleString()} L
+                      {log.quantity.toLocaleString('en-IN')} L
                     </td>
                     <td className="p-3 align-middle text-right text-muted-foreground">
                       {formatCurrency(log.pricePerLiter)}
@@ -125,7 +125,7 @@ export function FuelTable({ logs }: FuelTableProps) {
                       {formatCurrency(log.totalCost)}
                     </td>
                     <td className="p-3 align-middle text-right font-semibold text-muted-foreground">
-                      {log.odometer.toLocaleString()}
+                      {log.odometer.toLocaleString('en-IN')}
                     </td>
                     <td className="p-3 align-middle text-muted-foreground truncate max-w-[140px]" title={log.fuelStation}>
                       {log.fuelStation}

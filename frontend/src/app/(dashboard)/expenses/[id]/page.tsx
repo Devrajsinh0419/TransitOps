@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { ArrowLeft, Landmark, Calendar, Tag, DollarSign, User, ShieldAlert, FileText, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { formatCurrency } from '@/lib/helpers';
 
 export default function ExpenseDetailsPage() {
   const params = useParams();
@@ -94,7 +95,7 @@ export default function ExpenseDetailsPage() {
               </div>
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">GST component</span>
-                <span className="font-semibold text-muted-foreground mt-0.5 block">${(expense.gstAmount || 0).toFixed(2)}</span>
+                <span className="font-semibold text-muted-foreground mt-0.5 block">{formatCurrency(expense.gstAmount || 0)}</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">Payment Method</span>
@@ -102,7 +103,7 @@ export default function ExpenseDetailsPage() {
               </div>
               <div className="bg-muted/30 p-2.5 rounded-xl border border-border/50 text-right">
                 <span className="text-[9px] font-black text-muted-foreground uppercase block">TOTAL BILLED</span>
-                <span className="font-black text-foreground text-sm">${expense.amount.toFixed(2)}</span>
+                <span className="font-black text-foreground text-sm">{formatCurrency(expense.amount)}</span>
               </div>
             </div>
           </div>

@@ -1,8 +1,7 @@
-'use client';
-
 import React from 'react';
 import { Card } from '../cards/Card';
 import { TrendingUp, CreditCard, Fuel, ShieldCheck } from 'lucide-react';
+import { formatCurrency } from '@/lib/helpers';
 
 interface TripFinancialCardProps {
   expectedRevenue: number;
@@ -45,7 +44,7 @@ export function TripFinancialCard({
         <div className="space-y-0.5">
           <span className="text-muted-foreground uppercase font-semibold">Gross Revenue</span>
           <p className="text-xs font-bold text-foreground">
-            ${(actualRevenue !== undefined ? actualRevenue : expectedRevenue).toLocaleString()}
+            {formatCurrency(actualRevenue !== undefined ? actualRevenue : expectedRevenue)}
           </p>
         </div>
 
@@ -53,7 +52,7 @@ export function TripFinancialCard({
         <div className="space-y-0.5">
           <span className="text-muted-foreground uppercase font-semibold">Net Profit Margin</span>
           <p className={`text-xs font-bold ${actNetProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600'}`}>
-            ${actNetProfit.toLocaleString()}
+            {formatCurrency(actNetProfit)}
           </p>
         </div>
       </div>
@@ -61,15 +60,15 @@ export function TripFinancialCard({
       <div className="pt-2.5 border-t border-border/30 grid grid-cols-3 gap-2 text-[9px] text-muted-foreground">
         <div>
           <span className="font-semibold block uppercase">Est Fuel</span>
-          <span className="font-extrabold text-foreground">${estimatedFuelCost}</span>
+          <span className="font-extrabold text-foreground">{formatCurrency(estimatedFuelCost)}</span>
         </div>
         <div>
           <span className="font-semibold block uppercase">Est Toll</span>
-          <span className="font-extrabold text-foreground">${estimatedToll}</span>
+          <span className="font-extrabold text-foreground">{formatCurrency(estimatedToll)}</span>
         </div>
         <div>
           <span className="font-semibold block uppercase">Est Other</span>
-          <span className="font-extrabold text-foreground">${estimatedExpenses}</span>
+          <span className="font-extrabold text-foreground">{formatCurrency(estimatedExpenses)}</span>
         </div>
       </div>
     </Card>
@@ -77,3 +76,4 @@ export function TripFinancialCard({
 }
 
 export default TripFinancialCard;
+

@@ -7,6 +7,7 @@ import { MaintenanceStatusBadge, MaintenancePriorityBadge, MaintenanceTimeline, 
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft, Edit2, Calendar, Wrench, ShieldAlert, DollarSign, User, Activity } from 'lucide-react';
 import Link from 'next/link';
+import { formatCurrency } from '@/lib/helpers';
 
 export default function MaintenanceDetailsPage() {
   const params = useParams();
@@ -201,7 +202,7 @@ export default function MaintenanceDetailsPage() {
               </div>
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">Odometer at Checkin</span>
-                <span className="font-extrabold text-foreground">{record.vehicleOdometer.toLocaleString()} mi</span>
+                <span className="font-extrabold text-foreground">{record.vehicleOdometer.toLocaleString('en-IN')} km</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">Current Status</span>
@@ -218,23 +219,23 @@ export default function MaintenanceDetailsPage() {
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-xs">
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">Est. Cost</span>
-                <span className="font-semibold text-muted-foreground">${record.estimatedCost.toLocaleString()}</span>
+                <span className="font-semibold text-muted-foreground">{formatCurrency(record.estimatedCost)}</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">Labour Cost</span>
-                <span className="font-semibold text-foreground">${record.labourCost.toLocaleString()}</span>
+                <span className="font-semibold text-foreground">{formatCurrency(record.labourCost)}</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">Parts Cost</span>
-                <span className="font-semibold text-foreground">${record.partsCost.toLocaleString()}</span>
+                <span className="font-semibold text-foreground">{formatCurrency(record.partsCost)}</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">Tax</span>
-                <span className="font-semibold text-foreground">${record.tax.toLocaleString()}</span>
+                <span className="font-semibold text-foreground">{formatCurrency(record.tax)}</span>
               </div>
               <div className="bg-muted/30 p-2.5 rounded-xl border border-border/50 text-right">
                 <span className="text-[9px] font-black text-muted-foreground uppercase block">TOTAL AMOUNT</span>
-                <span className="font-black text-foreground text-sm">${record.totalCost.toLocaleString()}</span>
+                <span className="font-black text-foreground text-sm">{formatCurrency(record.totalCost)}</span>
               </div>
             </div>
           </div>

@@ -4,6 +4,7 @@ import React from 'react';
 import { Vehicle } from '@/types/vehicle';
 import { VehicleStatusBadge } from './VehicleStatusBadge';
 import { VehicleActions } from './VehicleActions';
+import { formatCurrency } from '@/lib/helpers';
 import { useRouter } from 'next/navigation';
 import { Eye, Edit2, Archive, Trash2 } from 'lucide-react';
 
@@ -37,7 +38,7 @@ export function VehicleTable({
             <th className="py-3 px-4">Vehicle</th>
             <th className="py-3 px-4">Model</th>
             <th className="py-3 px-4">Type</th>
-            <th className="py-3 px-4">Capacity (lbs)</th>
+            <th className="py-3 px-4">Capacity (kg)</th>
             <th className="py-3 px-4 text-right">Odometer</th>
             <th className="py-3 px-4 text-right">Purchase Cost</th>
             <th className="py-3 px-4">Status</th>
@@ -84,17 +85,17 @@ export function VehicleTable({
 
                 {/* 5. Capacity */}
                 <td className="py-3.5 px-4 text-muted-foreground font-semibold">
-                  {v.capacity.toLocaleString()}
+                  {v.capacity.toLocaleString('en-IN')}
                 </td>
 
                 {/* 6. Odometer */}
                 <td className="py-3.5 px-4 text-right text-foreground font-bold font-mono">
-                  {v.currentOdometer.toLocaleString()} mi
+                  {v.currentOdometer.toLocaleString('en-IN')} km
                 </td>
 
                 {/* 7. Purchase Cost */}
                 <td className="py-3.5 px-4 text-right text-foreground font-bold">
-                  ${v.purchaseCost.toLocaleString()}
+                  {formatCurrency(v.purchaseCost)}
                 </td>
 
                 {/* 8. Status Badge */}

@@ -55,11 +55,11 @@ export function useTripAnalytics(filters?: ReportFilters) {
           { name: 'Jun', value: 24800 },
         ],
         cards: {
-          longestTrip: { label: 'LONGEST TRIP DISTANCE', value: '850 miles', extra: 'Chicago Hub to NYC Depot' },
-          highestRevenueTrip: { label: 'HIGHEST REVENUE TRIP', value: '$4,250', extra: 'Heavy Logistics load #991' },
+          longestTrip: { label: 'LONGEST TRIP DISTANCE', value: '850 km', extra: 'Chicago Hub to NYC Depot' },
+          highestRevenueTrip: { label: 'HIGHEST REVENUE TRIP', value: '₹4,250', extra: 'Heavy Logistics load #991' },
           cancelledTrips: { label: 'CANCELLED TRIP RATIO', value: '2.4%', extra: '4 trips cancelled' },
           completedTrips: { label: 'COMPLETED TRIP RATE', value: '97.6%', extra: '154 completed manifest orders' },
-          averageDistance: { label: 'AVERAGE TRIP DISTANCE', value: '280 miles', extra: 'Standard routing average' },
+          averageDistance: { label: 'AVERAGE TRIP DISTANCE', value: '280 km', extra: 'Standard routing average' },
           averageDuration: { label: 'AVERAGE TRIP DURATION', value: '5.5 Hours', extra: 'Excludes highway layovers' },
         },
       });

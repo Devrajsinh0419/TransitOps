@@ -227,7 +227,7 @@ export function FuelForm({ onSubmit, isLoading = false }: FuelFormProps) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price per Liter ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price per Liter (₹)</label>
               <Input
                 type="number"
                 step="0.001"
@@ -242,7 +242,7 @@ export function FuelForm({ onSubmit, isLoading = false }: FuelFormProps) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Transaction Cost ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Transaction Cost (₹)</label>
               <Input
                 type="number"
                 className="h-9 text-xs rounded-lg border-border/60 bg-muted/20 text-muted-foreground font-bold"

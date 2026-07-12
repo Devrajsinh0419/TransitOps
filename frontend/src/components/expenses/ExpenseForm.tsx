@@ -153,12 +153,12 @@ export function ExpenseForm({ onSubmit, isLoading = false }: ExpenseFormProps) {
         {/* Step 2: Financial Details */}
         <div className="space-y-4">
           <h3 className="text-xs font-black text-foreground border-b border-border/40 pb-2 uppercase tracking-wider flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-primary text-[10px]">$</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-primary text-[10px]">₹</span>
             Financial Auditing Specifics
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Cost Amount ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Cost Amount (₹)</label>
               <Input
                 type="number"
                 step="0.01"
@@ -173,7 +173,7 @@ export function ExpenseForm({ onSubmit, isLoading = false }: ExpenseFormProps) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">GST component ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">GST component (₹)</label>
               <Input
                 type="number"
                 step="0.01"

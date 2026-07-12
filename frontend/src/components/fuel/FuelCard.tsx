@@ -5,6 +5,7 @@ import { FuelLog } from '@/types/fuel';
 import { Button } from '../ui/Button';
 import { Calendar, Fuel, MapPin, DollarSign, User, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { formatCurrency } from '@/lib/helpers';
 
 interface FuelCardProps {
   log: FuelLog;
@@ -27,8 +28,8 @@ export function FuelCard({ log }: FuelCardProps) {
           <Fuel className="h-4 w-4 text-primary" /> {log.fuelType}
         </h4>
         <p className="text-[10px] text-muted-foreground leading-normal">
-          Refueled <span className="font-semibold text-foreground">{log.quantity.toLocaleString()} Liters</span> at{' '}
-          <span className="font-semibold text-foreground">${log.pricePerLiter.toFixed(2)}/L</span>
+          Refueled <span className="font-semibold text-foreground">{log.quantity.toLocaleString('en-IN')} Liters</span> at{' '}
+          <span className="font-semibold text-foreground">{formatCurrency(log.pricePerLiter)}/L</span>
         </p>
       </div>
 
@@ -44,7 +45,7 @@ export function FuelCard({ log }: FuelCardProps) {
             <User className="h-3 w-3" /> {log.driverName}
           </span>
           <span className="text-[9px] block truncate flex items-center gap-1 mt-0.5">
-            Odo: {log.odometer.toLocaleString()} mi
+            Odo: {log.odometer.toLocaleString('en-IN')} km
           </span>
         </div>
       </div>

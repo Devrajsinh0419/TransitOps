@@ -49,7 +49,7 @@ export function ExpenseAnalytics({ data }: ExpenseAnalyticsProps) {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
-          title="Monthly Operating Expenses ($)"
+          title="Monthly Operating Expenses (₹)"
           type="area"
           data={data.monthlyExpenses}
           dataKeys={['value']}
@@ -58,7 +58,7 @@ export function ExpenseAnalytics({ data }: ExpenseAnalyticsProps) {
         />
 
         <ChartCard
-          title="Expenses By Category ($)"
+          title="Expenses By Category (₹)"
           type="pie"
           data={data.expensesByCategory}
           dataKeys={['value']}
@@ -67,7 +67,7 @@ export function ExpenseAnalytics({ data }: ExpenseAnalyticsProps) {
         />
 
         <ChartCard
-          title="Expense Distribution by Vehicle ($)"
+          title="Expense Distribution by Vehicle (₹)"
           type="bar"
           data={data.vehicleExpenses}
           dataKeys={['value']}
@@ -76,7 +76,7 @@ export function ExpenseAnalytics({ data }: ExpenseAnalyticsProps) {
         />
 
         <ChartCard
-          title="Corporate Department Allocations ($)"
+          title="Corporate Department Allocations (₹)"
           type="donut"
           data={data.departmentExpenses}
           dataKeys={['value']}

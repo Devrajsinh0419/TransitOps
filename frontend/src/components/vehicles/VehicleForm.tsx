@@ -136,7 +136,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false }: Vehicl
           <p className="text-[10px] text-muted-foreground">Engine, drivetrain and payload capabilities</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <FormField label="Capacity (lbs)" error={errors.capacity?.message}>
+          <FormField label="Capacity (kg)" error={errors.capacity?.message}>
             <Input {...register('capacity')} type="number" placeholder="e.g. 22000" />
           </FormField>
 
@@ -180,7 +180,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false }: Vehicl
             <Input {...register('purchaseDate')} type="date" />
           </FormField>
 
-          <FormField label="Purchase Cost ($)" error={errors.purchaseCost?.message}>
+          <FormField label="Purchase Cost (₹)" error={errors.purchaseCost?.message}>
             <Input {...register('purchaseCost')} type="number" placeholder="e.g. 145000" />
           </FormField>
 

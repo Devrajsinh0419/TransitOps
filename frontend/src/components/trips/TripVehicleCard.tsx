@@ -56,13 +56,13 @@ export function TripVehicleCard({ vehicle, cargoWeight }: TripVehicleCardProps) 
           <span className="text-muted-foreground uppercase font-semibold">Max Cargo Capacity</span>
           <p className="text-xs font-bold text-foreground flex items-center gap-1">
             <Scale className="h-3.5 w-3.5 text-muted-foreground/80" />
-            {vehicle.capacity.toLocaleString()} lbs
+            {vehicle.capacity.toLocaleString('en-IN')} kg
           </p>
         </div>
         <div className="space-y-0.5">
           <span className="text-muted-foreground uppercase font-semibold">Current Odometer</span>
           <p className="text-xs font-bold text-foreground">
-            {vehicle.odometer.toLocaleString()} mi
+            {vehicle.odometer.toLocaleString('en-IN')} km
           </p>
         </div>
       </div>
@@ -71,7 +71,7 @@ export function TripVehicleCard({ vehicle, cargoWeight }: TripVehicleCardProps) 
         <div className="p-2 bg-rose-500/5 border border-rose-500/10 rounded-lg flex items-start gap-1.5 mt-2">
           <AlertTriangle className="h-4 w-4 text-rose-500 flex-shrink-0 mt-0.5" />
           <p className="text-[9px] text-rose-600 font-semibold leading-relaxed">
-            CRITICAL: Selected cargo weight ({cargoWeight?.toLocaleString()} lbs) exceeds vehicle capacity limits! Please assign a larger asset.
+            CRITICAL: Selected cargo weight ({cargoWeight?.toLocaleString('en-IN')} kg) exceeds vehicle capacity limits! Please assign a larger asset.
           </p>
         </div>
       )}

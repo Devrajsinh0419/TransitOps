@@ -92,7 +92,7 @@ export function DispatchDialog({
             <span className="truncate max-w-[140px]">{trip.route.destination.split(',')[0]}</span>
           </div>
           <div className="text-[10px] text-muted-foreground">
-            Planned Distance: {trip.route.plannedDistance} miles ({trip.route.estimatedTime})
+            Planned Distance: {trip.route.plannedDistance} km ({trip.route.estimatedTime})
           </div>
         </div>
 
@@ -104,7 +104,7 @@ export function DispatchDialog({
           </div>
           <div>
             <span className="text-xs font-bold text-foreground">{trip.cargo.type}</span>
-            <span className="text-[10px] text-muted-foreground ml-2">({trip.cargo.weight.toLocaleString()} lbs)</span>
+            <span className="text-[10px] text-muted-foreground ml-2">({trip.cargo.weight.toLocaleString('en-IN')} kg)</span>
           </div>
           {trip.cargo.specialInstructions && (
             <p className="text-[10px] bg-card border border-border/30 px-2 py-1 rounded text-amber-600 font-semibold italic truncate">

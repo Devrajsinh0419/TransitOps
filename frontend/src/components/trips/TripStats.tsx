@@ -4,6 +4,7 @@ import React from 'react';
 import { Card } from '../cards/Card';
 import { Truck, Navigation, CheckCircle, AlertOctagon, TrendingUp } from 'lucide-react';
 import { Trip } from '@/types/trip';
+import { formatCurrency } from '@/lib/helpers';
 
 interface TripStatsProps {
   trips: Trip[];
@@ -42,7 +43,7 @@ export function TripStats({ trips }: TripStatsProps) {
     },
     {
       label: 'Revenue Fleet',
-      value: `$${totalRevenue.toLocaleString()}`,
+      value: formatCurrency(totalRevenue),
       icon: TrendingUp,
       color: 'text-indigo-600 bg-indigo-500/10 border-indigo-500/20 dark:text-indigo-400',
       description: 'Total revenue expected/billed',

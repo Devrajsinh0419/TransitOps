@@ -72,7 +72,7 @@ export function FuelChart({ logs }: FuelChartProps) {
 
           <div className="flex items-center justify-between text-[10px] text-muted-foreground font-semibold px-1">
             <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded bg-primary" /> Cost per fill ($)
+              <span className="h-2 w-2 rounded bg-primary" /> Cost per fill (₹)
             </span>
             <span>Last 7 refuel logs</span>
           </div>

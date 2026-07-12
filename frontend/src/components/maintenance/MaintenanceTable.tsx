@@ -13,11 +13,11 @@ import {
   Calendar,
   Wrench,
   Clock,
-  DollarSign,
   User,
   ExternalLink,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatCurrency } from '@/lib/helpers';
 
 interface MaintenanceTableProps {
   records: MaintenanceRecord[];
@@ -63,7 +63,7 @@ export function MaintenanceTable({ records, onDelete }: MaintenanceTableProps) {
                 <div className="space-y-1">
                   <span className="block text-[8px] font-bold uppercase tracking-wider text-muted-foreground/60">Estimated Cost</span>
                   <span className="font-extrabold text-foreground flex items-center">
-                    <DollarSign className="h-3 w-3" /> {m.totalCost.toLocaleString()}
+                    {formatCurrency(m.totalCost)}
                   </span>
                 </div>
               </div>
@@ -160,7 +160,7 @@ export function MaintenanceTable({ records, onDelete }: MaintenanceTableProps) {
 
                     {/* Cost Estimate */}
                     <td className="p-3 align-middle text-right font-extrabold text-foreground">
-                      ${m.totalCost.toLocaleString()}
+                      {formatCurrency(m.totalCost)}
                     </td>
 
                     {/* Schedule Dates */}

@@ -1,8 +1,7 @@
-'use client';
-
 import React from 'react';
 import { Card } from '../cards/Card';
 import { Package, Scale, DollarSign, ListOrdered } from 'lucide-react';
+import { formatCurrency } from '@/lib/helpers';
 
 interface TripCargoCardProps {
   cargo: {
@@ -47,7 +46,7 @@ export function TripCargoCard({ cargo }: TripCargoCardProps) {
         <div className="space-y-0.5">
           <span className="text-muted-foreground uppercase font-semibold">Gross Weight</span>
           <p className="text-xs font-bold text-foreground">
-            {cargo.weight.toLocaleString()} lbs
+            {cargo.weight.toLocaleString('en-IN')} kg
           </p>
         </div>
 
@@ -55,7 +54,7 @@ export function TripCargoCard({ cargo }: TripCargoCardProps) {
         <div className="space-y-0.5">
           <span className="text-muted-foreground uppercase font-semibold">Declared Value</span>
           <p className="text-xs font-bold text-foreground">
-            ${cargo.value.toLocaleString()}
+            {formatCurrency(cargo.value)}
           </p>
         </div>
       </div>

@@ -267,7 +267,7 @@ export function MaintenanceForm({ initialValues, onSubmit, isLoading = false, is
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Est. Cost ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Est. Cost (₹)</label>
               <Input
                 type="number"
                 className="h-9 text-xs rounded-lg border-border/60"
@@ -281,7 +281,7 @@ export function MaintenanceForm({ initialValues, onSubmit, isLoading = false, is
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Labour Cost ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Labour Cost (₹)</label>
               <Input
                 type="number"
                 className="h-9 text-xs rounded-lg border-border/60"
@@ -295,7 +295,7 @@ export function MaintenanceForm({ initialValues, onSubmit, isLoading = false, is
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Parts Cost ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Parts Cost (₹)</label>
               <Input
                 type="number"
                 className="h-9 text-xs rounded-lg border-border/60"
@@ -309,7 +309,7 @@ export function MaintenanceForm({ initialValues, onSubmit, isLoading = false, is
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tax ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tax (₹)</label>
               <Input
                 type="number"
                 className="h-9 text-xs rounded-lg border-border/60"

@@ -50,7 +50,7 @@ export function TripAnalytics({ data }: TripAnalyticsProps) {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
-          title="Revenue Trend ($)"
+          title="Revenue Trend (₹)"
           type="area"
           data={data.revenueTrend}
           dataKeys={['value']}
@@ -77,12 +77,12 @@ export function TripAnalytics({ data }: TripAnalyticsProps) {
         />
 
         <ChartCard
-          title="Distance Covered Trend (Miles)"
+          title="Distance Covered Trend (Kilometers)"
           type="bar"
           data={data.distanceCovered}
           dataKeys={['value']}
           colors={['#f59e0b']}
-          description="Total miles driven across fleet roster"
+          description="Total kilometers driven across fleet roster"
         />
       </div>
     </div>

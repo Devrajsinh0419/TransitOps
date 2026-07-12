@@ -46,7 +46,7 @@ export function useExecutiveKPIs(filters?: ReportFilters) {
         },
         maintenanceCost: {
           title: 'MAINTENANCE COSTS',
-          value: '$1,750',
+          value: '₹1,750',
           trend: 8.5,
           comparison: 'vs last month',
           iconName: 'wrench',
@@ -54,7 +54,7 @@ export function useExecutiveKPIs(filters?: ReportFilters) {
         },
         fuelCost: {
           title: 'FUEL EXPENDITURES',
-          value: '$674.10',
+          value: '₹674.10',
           trend: -3.2,
           comparison: 'vs last month',
           iconName: 'fuel',
@@ -62,7 +62,7 @@ export function useExecutiveKPIs(filters?: ReportFilters) {
         },
         operationalCost: {
           title: 'TOTAL OPERATIONAL COST',
-          value: '$1,976',
+          value: '₹1,976',
           trend: 4.2,
           comparison: 'vs last month',
           iconName: 'dollar-sign',
@@ -70,7 +70,7 @@ export function useExecutiveKPIs(filters?: ReportFilters) {
         },
         averageFuelEfficiency: {
           title: 'FUEL EFFICIENCY',
-          value: '11.8 mi/L',
+          value: '11.8 km/L',
           trend: 3.1,
           comparison: 'vs last week',
           iconName: 'zap',
@@ -86,7 +86,7 @@ export function useExecutiveKPIs(filters?: ReportFilters) {
         },
         revenue: {
           title: 'GROSS REVENUE',
-          value: '$24,800',
+          value: '₹24,800',
           trend: 14.2,
           comparison: 'vs last month',
           iconName: 'trending-up',
@@ -94,7 +94,7 @@ export function useExecutiveKPIs(filters?: ReportFilters) {
         },
         profit: {
           title: 'NET PROFIT',
-          value: '$22,824',
+          value: '₹22,824',
           trend: 15.1,
           comparison: 'vs last month',
           iconName: 'award',

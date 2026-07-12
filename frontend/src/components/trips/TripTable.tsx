@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Trip, TripStatus } from '@/types/trip';
 import { TripStatusBadge } from './TripStatusBadge';
+import { formatCurrency } from '@/lib/helpers';
 import { TripProgress } from './TripProgress';
 import { Button } from '../ui/Button';
 import {
@@ -184,7 +185,7 @@ export function TripTable({
                   <td className="p-3 align-middle">
                     <div className="font-bold text-foreground">{trip.cargo.type}</div>
                     <div className="text-[10px] text-muted-foreground mt-0.5">
-                      {trip.cargo.weight.toLocaleString()} lbs
+                      {trip.cargo.weight.toLocaleString('en-IN')} kg
                     </div>
                   </td>
 
@@ -202,7 +203,7 @@ export function TripTable({
 
                   {/* Revenue Target */}
                   <td className="p-3 align-middle text-right font-extrabold text-foreground">
-                    ${(trip.actualRevenue || trip.expectedRevenue).toLocaleString()}
+                    {formatCurrency(trip.actualRevenue || trip.expectedRevenue)}
                   </td>
 
                   {/* Workflow State */}

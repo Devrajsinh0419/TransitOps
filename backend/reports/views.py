@@ -21,7 +21,7 @@ class TripHistoryReportView(APIView):
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="trip_history.csv"'
             writer = csv.writer(response)
-            writer.writerow(['ID', 'Source', 'Destination', 'Vehicle', 'Driver', 'Cargo Weight', 'Distance', 'Revenue', 'Status', 'Dispatch Date'])
+            writer.writerow(['ID', 'Source', 'Destination', 'Vehicle', 'Driver', 'Cargo Weight (kg)', 'Distance (km)', 'Revenue (₹)', 'Status', 'Dispatch Date'])
             for trip in trips:
                 writer.writerow([
                     trip.id, trip.source, trip.destination, 
@@ -72,7 +72,7 @@ class VehicleUtilizationReportView(APIView):
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="vehicle_utilization.csv"'
             writer = csv.writer(response)
-            writer.writerow(['Vehicle ID', 'Registration Number', 'Vehicle Name', 'Status', 'Total Trips', 'Total Distance', 'Total Revenue'])
+            writer.writerow(['Vehicle ID', 'Registration Number', 'Vehicle Name', 'Status', 'Total Trips', 'Total Distance (km)', 'Total Revenue (₹)'])
             for row in report_data:
                 writer.writerow([
                     row['vehicle_id'], row['registration_number'], row['vehicle_name'],
@@ -92,7 +92,7 @@ class FuelCostReportView(APIView):
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="fuel_cost_report.csv"'
             writer = csv.writer(response)
-            writer.writerow(['ID', 'Vehicle', 'Liters', 'Cost', 'Odometer', 'Date'])
+            writer.writerow(['ID', 'Vehicle', 'Liters (L)', 'Cost (₹)', 'Odometer (km)', 'Date'])
             for log in fuel_logs:
                 writer.writerow([
                     log.id, log.vehicle.registration_number, log.liters, log.cost, log.odometer, log.date
@@ -119,7 +119,7 @@ class ExpenseReportView(APIView):
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="expense_report.csv"'
             writer = csv.writer(response)
-            writer.writerow(['ID', 'Vehicle', 'Expense Type', 'Category', 'Amount', 'Status', 'Date'])
+            writer.writerow(['ID', 'Vehicle', 'Expense Type', 'Category', 'Amount (₹)', 'Status', 'Date'])
             for exp in expenses:
                 writer.writerow([
                     exp.id, exp.vehicle.registration_number, exp.expense_type, exp.category, exp.amount, exp.status, exp.date
@@ -231,29 +231,29 @@ class ExportCSVView(APIView):
         writer = csv.writer(response)
         
         if report_name == 'fleet':
-            writer.writerow(['ID', 'Registration Number', 'Vehicle Name', 'Vehicle Type', 'Status', 'Current Odometer'])
+            writer.writerow(['ID', 'Registration Number', 'Vehicle Name', 'Vehicle Type', 'Status', 'Current Odometer (km)'])
             for v in Vehicle.objects.all():
-                writer.writerow([v.id, v.registration_number, v.vehicle_name, v.vehicle_type, v.status, v.current_odometer])
+                writer.writerow([v.id, v.registration_number, v.vehicle_name, v.vehicle_type, v.status, v.odometer])
                 
         elif report_name == 'trips':
-            writer.writerow(['ID', 'Trip Number', 'Driver', 'Vehicle', 'Source', 'Destination', 'Status', 'Start Date'])
+            writer.writerow(['ID', 'Trip Number', 'Driver', 'Vehicle', 'Source', 'Destination', 'Status', 'Dispatch Date'])
             for t in Trip.objects.all():
-                driver_name = f"{t.driver.first_name} {t.driver.last_name}" if t.driver else "None"
+                driver_name = t.driver.name if t.driver else "None"
                 vehicle_name = t.vehicle.registration_number if t.vehicle else "None"
-                writer.writerow([t.id, t.trip_number, driver_name, vehicle_name, t.source, t.destination, t.status, t.start_date])
+                writer.writerow([t.id, f"TRP-{t.id}", driver_name, vehicle_name, t.source, t.destination, t.status, t.dispatch_date])
                 
         elif report_name == 'drivers':
             writer.writerow(['ID', 'Name', 'Email', 'License Number', 'Status'])
             for d in Driver.objects.all():
-                writer.writerow([d.id, f"{d.first_name} {d.last_name}", d.email, d.license_number, d.status])
+                writer.writerow([d.id, d.name, d.email, d.license_number, d.status])
                 
         elif report_name == 'fuel':
-            writer.writerow(['ID', 'Vehicle', 'Liters', 'Cost', 'Odometer', 'Date', 'Fuel Type', 'Fuel Station', 'Invoice Number'])
+            writer.writerow(['ID', 'Vehicle', 'Liters (L)', 'Cost (₹)', 'Odometer (km)', 'Date', 'Fuel Type', 'Fuel Station', 'Invoice Number'])
             for f in FuelLog.objects.all():
                 writer.writerow([f.id, f.vehicle.registration_number, f.liters, f.cost, f.odometer, f.date, f.fuel_type, f.fuel_station, f.invoice_number])
                 
         elif report_name == 'expenses':
-            writer.writerow(['ID', 'Vehicle', 'Expense Type', 'Category', 'Amount', 'Status', 'Date', 'Invoice Number'])
+            writer.writerow(['ID', 'Vehicle', 'Expense Type', 'Category', 'Amount (₹)', 'Status', 'Date', 'Invoice Number'])
             for e in Expense.objects.all():
                 writer.writerow([e.id, e.vehicle.registration_number, e.expense_type, e.category, e.amount, e.status, e.date, e.invoice_number])
                 
@@ -274,15 +274,15 @@ class ExportExcelView(APIView):
         writer = csv.writer(response, delimiter='\t')
         
         if report_name == 'fleet':
-            writer.writerow(['ID', 'Registration Number', 'Vehicle Name', 'Vehicle Type', 'Status', 'Current Odometer'])
+            writer.writerow(['ID', 'Registration Number', 'Vehicle Name', 'Vehicle Type', 'Status', 'Current Odometer (km)'])
             for v in Vehicle.objects.all():
-                writer.writerow([v.id, v.registration_number, v.vehicle_name, v.vehicle_type, v.status, v.current_odometer])
+                writer.writerow([v.id, v.registration_number, v.vehicle_name, v.vehicle_type, v.status, v.odometer])
         elif report_name == 'trips':
             writer.writerow(['ID', 'Trip Number', 'Driver', 'Vehicle', 'Source', 'Destination', 'Status'])
             for t in Trip.objects.all():
-                driver_name = f"{t.driver.first_name} {t.driver.last_name}" if t.driver else "None"
+                driver_name = t.driver.name if t.driver else "None"
                 vehicle_name = t.vehicle.registration_number if t.vehicle else "None"
-                writer.writerow([t.id, t.trip_number, driver_name, vehicle_name, t.source, t.destination, t.status])
+                writer.writerow([t.id, f"TRP-{t.id}", driver_name, vehicle_name, t.source, t.destination, t.status])
         else:
             writer.writerow(['Report Name', 'Export Date'])
             writer.writerow([report_name.capitalize(), '2026-07-12'])

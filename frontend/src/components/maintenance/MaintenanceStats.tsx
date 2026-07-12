@@ -4,6 +4,7 @@ import React from 'react';
 import { MaintenanceRecord } from '@/types/maintenance';
 import { Wrench, Clock, DollarSign, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatCurrency } from '@/lib/helpers';
 
 interface MaintenanceStatsProps {
   records: MaintenanceRecord[];
@@ -19,7 +20,7 @@ export function MaintenanceStats({ records }: MaintenanceStatsProps) {
   const statItems = [
     {
       title: 'TOTAL EXPENDITURES',
-      value: `$${totalCost.toLocaleString()}`,
+      value: formatCurrency(totalCost),
       description: 'Cumulative fleet maintenance billing',
       icon: DollarSign,
       color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
@@ -40,7 +41,7 @@ export function MaintenanceStats({ records }: MaintenanceStatsProps) {
     },
     {
       title: 'AVERAGE TICKET COST',
-      value: `$${averageCost.toLocaleString()}`,
+      value: formatCurrency(averageCost),
       description: 'Average expense per work order ticket',
       icon: Clock,
       color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',

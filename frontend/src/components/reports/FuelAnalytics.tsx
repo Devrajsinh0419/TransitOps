@@ -49,7 +49,7 @@ export function FuelAnalytics({ data }: FuelAnalyticsProps) {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
-          title="Fuel Cost Trend ($)"
+          title="Fuel Cost Trend (₹)"
           type="area"
           data={data.fuelCostTrend}
           dataKeys={['value']}
@@ -67,7 +67,7 @@ export function FuelAnalytics({ data }: FuelAnalyticsProps) {
         />
 
         <ChartCard
-          title="Average Fleet Mileage (mi/L)"
+          title="Average Fleet Mileage (km/L)"
           type="line"
           data={data.mileageTrend}
           dataKeys={['value']}
@@ -76,7 +76,7 @@ export function FuelAnalytics({ data }: FuelAnalyticsProps) {
         />
 
         <ChartCard
-          title="Fuel Cost By Vehicle ($)"
+          title="Fuel Cost By Vehicle (₹)"
           type="bar"
           data={data.fuelByVehicle}
           dataKeys={['value']}

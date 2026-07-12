@@ -7,6 +7,7 @@ import { VehicleDetails } from '@/types/vehicle';
 import { Button } from '../ui/Button';
 import { Edit2, Archive, Trash2, Milestone, Wrench, Landmark, Droplet } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { formatCurrency } from '@/lib/helpers';
 
 export interface VehicleOverviewProps {
   vehicle: VehicleDetails;
@@ -27,8 +28,8 @@ export function VehicleOverview({
   const quickStats = [
     { label: 'Completed Trips', value: vehicle.tripsCount, icon: Milestone, color: 'text-emerald-500' },
     { label: 'Shop Tickets', value: vehicle.maintenanceCount, icon: Wrench, color: 'text-amber-500' },
-    { label: 'Total Expense', value: `$${vehicle.totalExpenses.toLocaleString()}`, icon: Landmark, color: 'text-blue-500' },
-    { label: 'Fuel Index', value: `${vehicle.fuelEfficiency} MPG`, icon: Droplet, color: 'text-indigo-500' },
+    { label: 'Total Expense', value: formatCurrency(vehicle.totalExpenses), icon: Landmark, color: 'text-blue-500' },
+    { label: 'Fuel Index', value: `${vehicle.fuelEfficiency} KMPL`, icon: Droplet, color: 'text-indigo-500' },
   ];
 
   return (
@@ -47,7 +48,7 @@ export function VehicleOverview({
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">{vehicle.name}</h2>
           <p className="text-xs text-muted-foreground font-semibold">
-            {formattedType} • {vehicle.manufacturer} {vehicle.model} ({vehicle.year}) • Odo: {vehicle.currentOdometer.toLocaleString()} mi
+            {formattedType} • {vehicle.manufacturer} {vehicle.model} ({vehicle.year}) • Odo: {vehicle.currentOdometer.toLocaleString('en-IN')} km
           </p>
         </div>
 

@@ -104,7 +104,7 @@ export default function ReportsHomePage() {
       {/* Charts section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
-          title="Revenue vs Operating Expenses ($)"
+          title="Revenue vs Operating Expenses (₹)"
           type="line"
           data={[
             { name: 'Jan', revenue: 18000, cost: 14200 },

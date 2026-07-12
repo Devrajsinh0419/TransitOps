@@ -47,10 +47,10 @@ export function useFuelAnalytics(filters?: ReportFilters) {
           { name: 'TRK-108-B', value: 314 },
         ],
         cards: {
-          highestFuelCost: { label: 'HIGHEST REFUEL TRANSACTION', value: '$314.00', extra: 'TRK-108-B at Highway 10 Shell' },
-          averageMileage: { label: 'AVERAGE FLEET MILEAGE', value: '11.8 mi/L', extra: 'Overall fuel consumption ratio' },
-          mostEfficientVehicle: { label: 'MOST EFFICIENT VEHICLE', value: 'VAN-102-X', extra: '14.8 miles per liter' },
-          leastEfficientVehicle: { label: 'LEAST EFFICIENT VEHICLE', value: 'TRK-108-B', extra: '7.2 miles per liter' },
+          highestFuelCost: { label: 'HIGHEST REFUEL TRANSACTION', value: '₹314.00', extra: 'TRK-108-B at Highway 10 Shell' },
+          averageMileage: { label: 'AVERAGE FLEET MILEAGE', value: '11.8 km/L', extra: 'Overall fuel consumption ratio' },
+          mostEfficientVehicle: { label: 'MOST EFFICIENT VEHICLE', value: 'VAN-102-X', extra: '14.8 km per liter' },
+          leastEfficientVehicle: { label: 'LEAST EFFICIENT VEHICLE', value: 'TRK-108-B', extra: '7.2 km per liter' },
         },
       });
       setIsLoading(false);

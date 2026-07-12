@@ -4,6 +4,7 @@ import React from 'react';
 import { FuelSummary as IFuelSummary } from '@/types/fuel';
 import { Fuel, DollarSign, TrendingUp, Compass } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatCurrency } from '@/lib/helpers';
 
 interface FuelSummaryProps {
   summary: IFuelSummary;
@@ -13,28 +14,28 @@ export function FuelSummary({ summary }: FuelSummaryProps) {
   const cards = [
     {
       title: 'TOTAL FUEL SPEND',
-      value: `$${summary.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: formatCurrency(summary.totalCost),
       description: 'Total billing for refuels',
       icon: DollarSign,
       color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
     },
     {
       title: 'TOTAL VOLUME FILLED',
-      value: `${summary.totalLiters.toLocaleString()} Liters`,
+      value: `${summary.totalLiters.toLocaleString('en-IN')} Liters`,
       description: 'Aggregated fuel volume loaded',
       icon: Fuel,
       color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
     },
     {
       title: 'AVERAGE FUEL PRICE',
-      value: `$${summary.averageFuelCost.toFixed(2)}/L`,
+      value: `${formatCurrency(summary.averageFuelCost)}/L`,
       description: 'Average market cost per liter',
       icon: TrendingUp,
       color: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
     },
     {
       title: 'AVERAGE EFFICIENCY RATIO',
-      value: `${summary.averageMileage} mi/L`,
+      value: `${summary.averageMileage} km/L`,
       description: 'Approximated distance-to-fuel efficiency',
       icon: Compass,
       color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',

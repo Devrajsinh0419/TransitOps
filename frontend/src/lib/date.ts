@@ -2,10 +2,10 @@ export function formatDate(dateString?: string | Date): string {
   if (!dateString) return '-';
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return '-';
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
+  return new Intl.DateTimeFormat('en-IN', {
     day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   }).format(date);
 }
 
@@ -13,12 +13,13 @@ export function formatDateTime(dateString?: string | Date): string {
   if (!dateString) return '-';
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return '-';
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
+  return new Intl.DateTimeFormat('en-IN', {
     day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    hour12: true,
   }).format(date);
 }
 
@@ -44,3 +45,4 @@ export function formatRelativeTime(dateString?: string | Date): string {
   
   return formatDate(date);
 }
+

@@ -34,7 +34,7 @@ export function TripRouteCard({ route }: TripRouteCardProps) {
         </div>
         <div>
           <h4 className="text-xs font-extrabold text-foreground">Route Details</h4>
-          <p className="text-[10px] text-muted-foreground">Estimate: {route.estimatedTime} ({route.plannedDistance} mi)</p>
+          <p className="text-[10px] text-muted-foreground">Estimate: {route.estimatedTime} ({route.plannedDistance} km)</p>
         </div>
       </div>
 

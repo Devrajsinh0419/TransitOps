@@ -90,15 +90,15 @@ export function VehicleFilters({ filters, onChange, isOpen, onClose }: VehicleFi
         </FormField>
 
         {/* 3. Capacity threshold */}
-        <FormField label="Min Capacity (lbs)" className="text-xs">
+        <FormField label="Min Capacity (kg)" className="text-xs">
           <Select
             value={filters.capacity}
             onChange={(e) => handleSelectChange('capacity', e.target.value)}
             options={[
-              { value: '5000', label: '>= 5,000 lbs' },
-              { value: '10000', label: '>= 10,000 lbs' },
-              { value: '20000', label: '>= 20,000 lbs' },
-              { value: '50000', label: '>= 50,000 lbs' },
+              { value: '5000', label: '>= 5,000 kg' },
+              { value: '10000', label: '>= 10,000 kg' },
+              { value: '20000', label: '>= 20,000 kg' },
+              { value: '50000', label: '>= 50,000 kg' },
             ]}
             placeholder="No Limit"
           />

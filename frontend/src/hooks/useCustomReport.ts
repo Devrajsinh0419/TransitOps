@@ -18,15 +18,15 @@ export function useCustomReport() {
     let mockResults: Record<string, any>[] = [];
     if (config.module === 'fleet') {
       mockResults = [
-        { vehicleRegistration: 'TRK-491-A', vehicleName: 'Volvo FH16', type: 'Heavy Truck', utilization: '88%', cost: '$1,200', odometer: '142,000 mi' },
-        { vehicleRegistration: 'VAN-102-X', vehicleName: 'Ford Transit', type: 'Delivery Van', utilization: '92%', cost: '$420', odometer: '38,100 mi' },
-        { vehicleRegistration: 'TRK-108-B', vehicleName: 'Scania R500', type: 'Heavy Truck', utilization: '76%', cost: '$1,750', odometer: '98,400 mi' },
+        { vehicleRegistration: 'TRK-491-A', vehicleName: 'Volvo FH16', type: 'Heavy Truck', utilization: '88%', cost: '₹1,200', odometer: '1,42,000 km' },
+        { vehicleRegistration: 'VAN-102-X', vehicleName: 'Ford Transit', type: 'Delivery Van', utilization: '92%', cost: '₹420', odometer: '38,100 km' },
+        { vehicleRegistration: 'TRK-108-B', vehicleName: 'Scania R500', type: 'Heavy Truck', utilization: '76%', cost: '₹1,750', odometer: '98,400 km' },
       ];
     } else if (config.module === 'trips') {
       mockResults = [
-        { tripNumber: 'TRP-001', route: 'Houston - Dallas', driver: 'Marcus Miller', revenue: '$1,200', status: 'Completed', date: '2026-07-08' },
-        { tripNumber: 'TRP-002', route: 'Chicago - Detroit', driver: 'David Richardson', revenue: '$1,850', status: 'Completed', date: '2026-07-09' },
-        { tripNumber: 'TRP-003', route: 'Austin - Houston', driver: 'Amanda Sterling', revenue: '$850', status: 'In Progress', date: '2026-07-12' },
+        { tripNumber: 'TRP-001', route: 'Houston - Dallas', driver: 'Marcus Miller', revenue: '₹1,200', status: 'Completed', date: '2026-07-08' },
+        { tripNumber: 'TRP-002', route: 'Chicago - Detroit', driver: 'David Richardson', revenue: '₹1,850', status: 'Completed', date: '2026-07-09' },
+        { tripNumber: 'TRP-003', route: 'Austin - Houston', driver: 'Amanda Sterling', revenue: '₹850', status: 'In Progress', date: '2026-07-12' },
       ];
     } else if (config.module === 'drivers') {
       mockResults = [
@@ -36,18 +36,18 @@ export function useCustomReport() {
       ];
     } else if (config.module === 'maintenance') {
       mockResults = [
-        { maintenanceId: 'MNT-001', vehicle: 'TRK-108-B', type: 'repairs', totalCost: '$1,250', status: 'completed', date: '2026-07-02' },
-        { maintenanceId: 'MNT-002', vehicle: 'VAN-102-X', type: 'routine', totalCost: '$100', status: 'completed', date: '2026-07-04' },
+        { maintenanceId: 'MNT-001', vehicle: 'TRK-108-B', type: 'repairs', totalCost: '₹1,250', status: 'completed', date: '2026-07-02' },
+        { maintenanceId: 'MNT-002', vehicle: 'VAN-102-X', type: 'routine', totalCost: '₹100', status: 'completed', date: '2026-07-04' },
       ];
     } else if (config.module === 'fuel') {
       mockResults = [
-        { fuelLogId: 'FUL-001', vehicle: 'TRK-491-A', fuelType: 'Diesel', quantity: '120L', totalCost: '$186', date: '2026-07-02' },
-        { fuelLogId: 'FUL-002', vehicle: 'VAN-102-X', fuelType: 'Gasoline', quantity: '50L', totalCost: '$74', date: '2026-07-04' },
+        { fuelLogId: 'FUL-001', vehicle: 'TRK-491-A', fuelType: 'Diesel', quantity: '120L', totalCost: '₹186', date: '2026-07-02' },
+        { fuelLogId: 'FUL-002', vehicle: 'VAN-102-X', fuelType: 'Gasoline', quantity: '50L', totalCost: '₹74', date: '2026-07-04' },
       ];
     } else {
       mockResults = [
-        { expenseId: 'EXP-001', type: 'Insurance', amount: '$2,900', vendor: 'Progressive', status: 'approved', date: '2026-07-01' },
-        { expenseId: 'EXP-002', type: 'Toll fee', amount: '$12.50', vendor: 'EZ-Pass', status: 'approved', date: '2026-07-05' },
+        { expenseId: 'EXP-001', type: 'Insurance', amount: '₹2,900', vendor: 'Progressive', status: 'approved', date: '2026-07-01' },
+        { expenseId: 'EXP-002', type: 'Toll fee', amount: '₹12.50', vendor: 'EZ-Pass', status: 'approved', date: '2026-07-05' },
       ];
     }
 

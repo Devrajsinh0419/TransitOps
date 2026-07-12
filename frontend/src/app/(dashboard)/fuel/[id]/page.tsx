@@ -6,6 +6,7 @@ import { useFuelLog } from '@/hooks/useFuelLog';
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft, Fuel, Calendar, MapPin, DollarSign, User, ShieldAlert, FileText, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { formatCurrency } from '@/lib/helpers';
 
 export default function FuelLogDetailsPage() {
   const params = useParams();
@@ -74,15 +75,15 @@ export default function FuelLogDetailsPage() {
               </div>
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">Liters Filled</span>
-                <span className="font-extrabold text-foreground">{log.quantity.toLocaleString()} L</span>
+                <span className="font-extrabold text-foreground">{log.quantity.toLocaleString('en-IN')} L</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase block">Price per Liter</span>
-                <span className="font-bold text-foreground">${log.pricePerLiter.toFixed(2)}/L</span>
+                <span className="font-bold text-foreground">{formatCurrency(log.pricePerLiter)}/L</span>
               </div>
               <div className="bg-muted/30 p-2.5 rounded-xl border border-border/50 text-right">
                 <span className="text-[9px] font-black text-muted-foreground uppercase block">TOTAL BILLED</span>
-                <span className="font-black text-foreground text-sm">${log.totalCost.toFixed(2)}</span>
+                <span className="font-black text-foreground text-sm">{formatCurrency(log.totalCost)}</span>
               </div>
             </div>
           </div>
@@ -105,8 +106,8 @@ export default function FuelLogDetailsPage() {
                 </span>
               </div>
               <div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase block">Log Odometer (mi)</span>
-                <span className="font-extrabold text-foreground">{log.odometer.toLocaleString()}</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase block">Log Odometer (km)</span>
+                <span className="font-extrabold text-foreground">{log.odometer.toLocaleString('en-IN')}</span>
               </div>
             </div>
           </div>

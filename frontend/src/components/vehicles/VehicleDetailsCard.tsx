@@ -5,6 +5,8 @@ import { Card } from '../cards/Card';
 import { Landmark, Settings2, ShieldCheck, Truck } from 'lucide-react';
 import { VehicleDetails } from '@/types/vehicle';
 
+import { formatCurrency } from '@/lib/helpers';
+
 export interface VehicleDetailsCardProps {
   vehicle: VehicleDetails;
 }
@@ -20,7 +22,7 @@ export function VehicleDetailsCard({ vehicle }: VehicleDetailsCardProps) {
   ];
 
   const specs: { label: string; value: string | number; className?: string }[] = [
-    { label: 'Capacity (lbs)', value: vehicle.capacity.toLocaleString() },
+    { label: 'Capacity (kg)', value: `${vehicle.capacity.toLocaleString('en-IN')} kg` },
     { label: 'Fuel Type', value: vehicle.fuelType, className: 'capitalize' },
     { label: 'Transmission', value: vehicle.transmission, className: 'capitalize' },
     { label: 'Color', value: vehicle.color },
@@ -28,7 +30,7 @@ export function VehicleDetailsCard({ vehicle }: VehicleDetailsCardProps) {
 
   const financial: { label: string; value: string | number; className?: string }[] = [
     { label: 'Purchase Date', value: vehicle.purchaseDate },
-    { label: 'Purchase Cost', value: `$${vehicle.purchaseCost.toLocaleString()}` },
+    { label: 'Purchase Cost', value: formatCurrency(vehicle.purchaseCost) },
     { label: 'Insurance Expiration', value: vehicle.insuranceExpiry },
     { label: 'Registration Expiration', value: vehicle.registrationExpiry },
   ];
