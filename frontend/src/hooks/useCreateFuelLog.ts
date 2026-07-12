@@ -28,7 +28,6 @@ export function useCreateFuelLog() {
           vehicleRegistration: vehicle?.registrationNumber || 'TRK-UNKNOWN',
           vehicleName: vehicle?.name || 'Assigned Fleet Vehicle',
           driverName: 'Roster Driver', // default placeholder
-          createdBy: 'Fleet Admin',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };

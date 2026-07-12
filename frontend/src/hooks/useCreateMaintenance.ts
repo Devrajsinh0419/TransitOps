@@ -6,6 +6,8 @@ import { activeMaintenance } from './useMaintenance';
 import { MaintenanceSchemaInput } from '@/validation/maintenance.schema';
 import { toast } from 'sonner';
 
+import { activeVehicles } from './useVehicles';
+
 export function useCreateMaintenance() {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,10 +24,15 @@ export function useCreateMaintenance() {
         // Calculate total cost
         const totalCost = data.labourCost + data.partsCost + data.tax;
 
+        const vehicle = activeVehicles.find((v) => v.id === data.vehicleId);
+
         const newRecord: MaintenanceRecord = {
           id,
           maintenanceId,
           ...data,
+          vehicleRegistration: vehicle?.registrationNumber || data.vehicleRegistration || 'TRK-UNKNOWN',
+          vehicleName: vehicle?.name || 'Assigned Fleet Vehicle',
+          vehicleStatus: vehicle?.status || 'active',
           status: 'pending',
           totalCost: totalCost || data.estimatedCost, // fallback if totalCost is 0
           timeline: [
@@ -37,7 +44,6 @@ export function useCreateMaintenance() {
               date: nowStr,
             },
           ],
-          createdBy: 'Fleet Admin',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
