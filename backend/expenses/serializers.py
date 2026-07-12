@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from .models import Expense
 from vehicles.serializers import VehicleSerializer
-
 from django.conf import settings
+
 
 class ExpenseSerializer(serializers.ModelSerializer):
     vehicle_detail = VehicleSerializer(source='vehicle', read_only=True)
@@ -24,7 +24,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         exp_type = attrs.get('expense_type')
         category = attrs.get('category')
-        
+
         if not exp_type and category:
             if category.lower() in ['maintenance', 'repair']:
                 attrs['expense_type'] = Expense.ExpenseType.REPAIR
@@ -39,27 +39,35 @@ class ExpenseSerializer(serializers.ModelSerializer):
             attrs['category'] = category
         elif exp_type and not category:
             attrs['category'] = exp_type
-            
+
         return attrs
 
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, 'copy') else dict(data)
-        
+
         if 'invoiceNumber' in data:
             data['invoice_number'] = data['invoiceNumber']
         if 'expenseType' in data:
             data['expense_type'] = data['expenseType']
-            
-        attachment_url = data.get('attachmentUrl') or data.get('receipt')
-        if attachment_url and isinstance(attachment_url, str):
-            media_url = settings.MEDIA_URL
-            relative_path = attachment_url
+
+        # If a real file object was uploaded (multipart), leave it as-is.
+        # If only an absolute URL string was provided (pre-upload flow), strip
+        # it down to the relative media path so DRF can store it correctly.
+        attachment = data.get('attachmentUrl') or data.get('receipt')
+        if attachment and isinstance(attachment, str):
+            media_url = settings.MEDIA_URL  # e.g. "/media/"
+            relative_path = attachment
+            # Strip scheme + host if present (absolute URL)
+            if '://' in relative_path:
+                try:
+                    from urllib.parse import urlparse
+                    parsed = urlparse(relative_path)
+                    relative_path = parsed.path
+                except Exception:
+                    pass
+            # Strip leading MEDIA_URL prefix
             if relative_path.startswith(media_url):
                 relative_path = relative_path[len(media_url):]
-            if '://' in relative_path:
-                parts = relative_path.split(media_url, 1)
-                if len(parts) > 1:
-                    relative_path = parts[1]
             data['receipt'] = relative_path
 
         return super().to_internal_value(data)

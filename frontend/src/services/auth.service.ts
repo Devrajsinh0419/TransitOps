@@ -38,6 +38,17 @@ export const authService = {
     return response.data;
   },
 
+  // Update user profile information
+  updateProfile: async (profileData: Record<string, any>): Promise<any> => {
+    if (useDemoAuth) {
+      // In demo mode, simply echo back the data
+      return profileData;
+    }
+    const response = await apiClient.put<any>('/auth/me', profileData);
+    return response.data;
+  },
+
+
   refreshToken: async (token: string): Promise<{ accessToken: string; refreshToken: string }> => {
     if (useDemoAuth) {
       return {

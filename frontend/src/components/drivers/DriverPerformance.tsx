@@ -4,7 +4,7 @@ import React from 'react';
 import { Card } from '../cards/Card';
 import { DriverPerformance as PerformanceType } from '@/types/driver';
 import { formatDistance } from '@/lib/helpers';
-  ResponsiveContainer,
+import  {ResponsiveContainer,
   AreaChart,
   Area,
   BarChart,

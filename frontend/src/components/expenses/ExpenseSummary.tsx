@@ -4,6 +4,7 @@ import React from 'react';
 import { ExpenseSummary as IExpenseSummary } from '@/types/expense';
 import { formatCurrency } from '@/lib/helpers';
 import { motion } from 'framer-motion';
+import { Landmark, Calendar, Award, Receipt } from 'lucide-react';
 
 interface ExpenseSummaryProps {
   summary: IExpenseSummary;
@@ -20,7 +21,7 @@ export function ExpenseSummary({ summary }: ExpenseSummaryProps) {
     },
     {
       title: "TODAY'S TRANSACTIONS",
-      value: formatCurrency(summary.todayExpenses),,
+      value: formatCurrency(summary.todayExpenses),
       description: 'Cleared billing logged today',
       icon: Calendar,
       color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
@@ -34,7 +35,7 @@ export function ExpenseSummary({ summary }: ExpenseSummaryProps) {
     },
     {
       title: 'DAILY AVERAGE RUNRATE',
-      value: formatCurrency(summary.averageDailyCost),,
+      value: formatCurrency(summary.averageDailyCost),
       description: 'Approximated daily financial outflow',
       icon: Receipt,
       color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',

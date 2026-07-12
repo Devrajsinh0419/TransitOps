@@ -48,7 +48,7 @@ export function FleetSummaryCard({ summary, isLoading = false }: FleetSummaryCar
     },
     {
       label: 'Maintenance Cost',
-      value: formatCurrency(data.maintenanceCost),,
+      value: formatCurrency(data.maintenanceCost),
       description: 'Total active month spend',
       icon: Landmark,
       color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',

@@ -16,7 +16,8 @@ export interface FuelLog extends BaseEntity {
   odometer: number;
   fuelStation: string;
   invoiceNumber: string;
-  receiptImage?: string;
+  receiptImage?: string;    // legacy field
+  attachmentUrl?: string;   // URL returned by /api/upload/
   date: string;
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -12,17 +12,145 @@ import { FormField } from '../forms/FormField';
 import { FormCard } from '../forms/FormCard';
 import { Modal } from '../dialogs/Modal';
 import { toast } from 'sonner';
-import { Upload, AlertTriangle } from 'lucide-react';
+import { Upload, AlertTriangle, X, Check } from 'lucide-react';
+import apiClient from '@/services/axios';
 
 export interface DriverFormProps {
   initialData?: any;
-  onSubmit: (data: DriverSchemaInput) => Promise<void>;
+  onSubmit: (data: DriverSchemaInput & {
+    avatarUrl?: string;
+    licenseScanUrl?: string;
+    medicalCertificateUrl?: string;
+  }) => Promise<void>;
   isSubmitting?: boolean;
 }
 
+// ─── Reusable file upload zone ────────────────────────────────────────────────
+interface FileUploadZoneProps {
+  label: string;
+  hint: string;
+  accept: string;
+  uploadType: 'photo' | 'license' | 'medical' | 'receipt';
+  onUploaded: (url: string) => void;
+}
+
+function FileUploadZone({ label, hint, accept, uploadType, onUploaded }: FileUploadZoneProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File too large', { description: 'Maximum allowed size is 10MB.' });
+      return;
+    }
+
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type', { description: 'Only PDF, JPG, PNG or WEBP are accepted.' });
+      return;
+    }
+
+    setUploading(true);
+    setFileName(file.name);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_type', uploadType);
+
+      const response = await apiClient.post<{ url: string }>('/upload/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      setFileUrl(response.data.url);
+      onUploaded(response.data.url);
+      toast.success('File uploaded successfully');
+    } catch (err: any) {
+      const detail = err.response?.data?.detail || 'Upload failed. Please try again.';
+      toast.error('Upload Error', { description: detail });
+      setFileName(null);
+    } finally {
+      setUploading(false);
+      // Reset native input so the same file can be re-selected
+      if (inputRef.current) inputRef.current.value = '';
+    }
+  };
+
+  const handleClear = () => {
+    setFileName(null);
+    setFileUrl(null);
+    onUploaded('');
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  return (
+    <div className="space-y-1">
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        className="hidden"
+        onChange={handleChange}
+        disabled={uploading}
+      />
+
+      {!fileName ? (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className="w-full border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center text-center bg-muted/10 min-h-24 hover:bg-muted/20 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <Upload className="h-5 w-5 text-muted-foreground mb-1" />
+          <span className="text-[10px] font-bold text-foreground">{label}</span>
+          <span className="text-[8px] text-muted-foreground">{hint}</span>
+        </button>
+      ) : (
+        <div className="border border-border/60 rounded-xl p-3 bg-muted/20 flex items-center justify-between min-h-24">
+          <div className="flex items-center gap-2">
+            {uploading ? (
+              <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0" />
+            ) : (
+              <Check className="h-5 w-5 text-emerald-500 shrink-0" />
+            )}
+            <div className="flex flex-col text-left">
+              <span className="text-[10px] font-bold text-foreground truncate max-w-[150px]">{fileName}</span>
+              <span className="text-[8px] text-muted-foreground">
+                {uploading ? 'Uploading...' : 'Uploaded successfully'}
+              </span>
+            </div>
+          </div>
+          {!uploading && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main DriverForm ──────────────────────────────────────────────────────────
 export function DriverForm({ initialData, onSubmit, isSubmitting = false }: DriverFormProps) {
   const router = useRouter();
-  const [showExitDialog, setShowExitDialog] = React.useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+
+  // URLs set after successful uploads to /api/upload/
+  const [avatarUrl, setAvatarUrl] = useState<string>(initialData?.avatarUrl || '');
+  const [licenseScanUrl, setLicenseScanUrl] = useState<string>(initialData?.licenseScanUrl || '');
+  const [medicalCertificateUrl, setMedicalCertificateUrl] = useState<string>(
+    initialData?.medicalCertificateUrl || ''
+  );
 
   const {
     register,
@@ -76,7 +204,12 @@ export function DriverForm({ initialData, onSubmit, isSubmitting = false }: Driv
 
   const onFormSubmit = async (data: DriverSchemaInput) => {
     try {
-      await onSubmit(data);
+      await onSubmit({
+        ...data,
+        avatarUrl: avatarUrl || undefined,
+        licenseScanUrl: licenseScanUrl || undefined,
+        medicalCertificateUrl: medicalCertificateUrl || undefined,
+      });
       reset(data);
     } catch (err: any) {
       toast.error(err.message || 'An error occurred while saving.');
@@ -102,7 +235,7 @@ export function DriverForm({ initialData, onSubmit, isSubmitting = false }: Driv
           <FormField label="Full Name" error={errors.name?.message}>
             <Input {...register('name')} placeholder="e.g. Marcus Miller" />
           </FormField>
-          
+
           <FormField label="Employee ID" error={errors.employeeId?.message}>
             <Input {...register('employeeId')} placeholder="e.g. EMP-291-A" />
           </FormField>
@@ -146,10 +279,16 @@ export function DriverForm({ initialData, onSubmit, isSubmitting = false }: Driv
             <Input {...register('emergencyPhone')} placeholder="e.g. +15550192832" />
           </FormField>
 
-          <div className="border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center text-center bg-muted/10 min-h-24">
-            <Upload className="h-5 w-5 text-muted-foreground mb-1" />
-            <span className="text-[10px] font-bold text-foreground">Profile Photo</span>
-            <span className="text-[8px] text-muted-foreground">PNG, JPG up to 5MB</span>
+          {/* ✅ Working profile photo upload */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Profile Photo</p>
+            <FileUploadZone
+              label="Upload Profile Photo"
+              hint="PNG, JPG, WEBP up to 5MB"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              uploadType="photo"
+              onUploaded={setAvatarUrl}
+            />
           </div>
         </div>
       </FormCard>
@@ -192,10 +331,16 @@ export function DriverForm({ initialData, onSubmit, isSubmitting = false }: Driv
             <Input {...register('licenseExpiry')} type="date" />
           </FormField>
 
-          <div className="border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center text-center bg-muted/10 min-h-24">
-            <Upload className="h-5 w-5 text-muted-foreground mb-1" />
-            <span className="text-[10px] font-bold text-foreground">License Scan</span>
-            <span className="text-[8px] text-muted-foreground">PDF or JPG up to 10MB</span>
+          {/* ✅ Working license scan upload */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">License Scan</p>
+            <FileUploadZone
+              label="Upload License Scan"
+              hint="PDF or JPG up to 10MB"
+              accept="application/pdf,image/jpeg,image/jpg,image/png"
+              uploadType="license"
+              onUploaded={setLicenseScanUrl}
+            />
           </div>
         </div>
       </FormCard>
@@ -279,10 +424,16 @@ export function DriverForm({ initialData, onSubmit, isSubmitting = false }: Driv
             />
           </FormField>
 
-          <div className="border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center text-center bg-muted/10 min-h-20">
-            <Upload className="h-4.5 w-4.5 text-muted-foreground mb-1" />
-            <span className="text-[10px] font-bold text-foreground">Medical Certificate</span>
-            <span className="text-[8px] text-muted-foreground">PDF file scan</span>
+          {/* ✅ Working medical certificate upload */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Medical Certificate</p>
+            <FileUploadZone
+              label="Upload Medical Certificate"
+              hint="PDF file scan up to 10MB"
+              accept="application/pdf,image/jpeg,image/jpg,image/png"
+              uploadType="medical"
+              onUploaded={setMedicalCertificateUrl}
+            />
           </div>
         </div>
       </FormCard>

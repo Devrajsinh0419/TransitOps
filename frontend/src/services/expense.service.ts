@@ -14,17 +14,21 @@ export const expenseService = {
   },
 
   createExpense: async (data: Partial<ExpenseRecord>): Promise<ExpenseRecord> => {
-    const response = await apiClient.post<ExpenseRecord>('/expenses', data);
+    // If data contains a File object for receipt, send as multipart;
+    // otherwise send as JSON (pre-uploaded URL in attachmentUrl field).
+    const response = await apiClient.post<ExpenseRecord>('/expenses/', data, {
+      headers: { 'Content-Type': 'application/json' },
+    });
     return response.data;
   },
 
   updateExpense: async (id: string, data: Partial<ExpenseRecord>): Promise<ExpenseRecord> => {
-    const response = await apiClient.patch<ExpenseRecord>(`/expenses/${id}`, data);
+    const response = await apiClient.patch<ExpenseRecord>(`/expenses/${id}/`, data);
     return response.data;
   },
 
   deleteExpense: async (id: string): Promise<void> => {
-    await apiClient.delete(`/expenses/${id}`);
+    await apiClient.delete(`/expenses/${id}/`);
   },
 };
 

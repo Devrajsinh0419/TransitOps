@@ -3,9 +3,10 @@ from .models import FuelLog
 from vehicles.serializers import VehicleSerializer
 from django.conf import settings
 
+
 class FuelLogSerializer(serializers.ModelSerializer):
     vehicle_detail = VehicleSerializer(source='vehicle', read_only=True)
-    
+
     invoiceNumber = serializers.CharField(source='invoice_number', required=False, allow_blank=True)
     fuelType = serializers.CharField(source='fuel_type', required=False, allow_blank=True)
     fuelStation = serializers.CharField(source='fuel_station', required=False, allow_blank=True)
@@ -27,7 +28,7 @@ class FuelLogSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, 'copy') else dict(data)
-        
+
         if 'invoiceNumber' in data:
             data['invoice_number'] = data['invoiceNumber']
         if 'fuelType' in data:
@@ -38,17 +39,22 @@ class FuelLogSerializer(serializers.ModelSerializer):
             data['liters'] = data['quantity']
         if 'totalCost' in data:
             data['cost'] = data['totalCost']
-            
-        attachment_url = data.get('attachmentUrl') or data.get('receipt')
-        if attachment_url and isinstance(attachment_url, str):
-            media_url = settings.MEDIA_URL
-            relative_path = attachment_url
+
+        # Handle attachment URL (pre-upload flow): strip to relative media path.
+        # Real file objects (multipart) pass through untouched.
+        attachment = data.get('attachmentUrl') or data.get('receipt')
+        if attachment and isinstance(attachment, str):
+            media_url = settings.MEDIA_URL  # e.g. "/media/"
+            relative_path = attachment
+            if '://' in relative_path:
+                try:
+                    from urllib.parse import urlparse
+                    parsed = urlparse(relative_path)
+                    relative_path = parsed.path
+                except Exception:
+                    pass
             if relative_path.startswith(media_url):
                 relative_path = relative_path[len(media_url):]
-            if '://' in relative_path:
-                parts = relative_path.split(media_url, 1)
-                if len(parts) > 1:
-                    relative_path = parts[1]
             data['receipt'] = relative_path
 
         return super().to_internal_value(data)
@@ -66,4 +72,3 @@ class FuelLogSerializer(serializers.ModelSerializer):
         ret['vehicleName'] = instance.vehicle.vehicle_name
         ret['pricePerLiter'] = float(instance.cost / instance.liters) if instance.liters > 0 else 0
         return ret
-

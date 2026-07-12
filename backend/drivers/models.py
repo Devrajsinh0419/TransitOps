@@ -8,6 +8,7 @@ class Driver(models.Model):
         OFF_DUTY = "Off Duty", "Off Duty"
         SUSPENDED = "Suspended", "Suspended"
 
+    photo = models.ImageField(upload_to='drivers/photos/', null=True, blank=True)
     name = models.CharField(max_length=100)
     license_number = models.CharField(max_length=50, unique=True)
     license_category = models.CharField(max_length=50)

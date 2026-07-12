@@ -47,14 +47,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 attrs[self.username_field] = user.username
             except User.DoesNotExist:
                 pass
-                
-        data = super().validate(attrs)
+        try:
+            data = super().validate(attrs)
+        except Exception:
+            raise serializers.ValidationError({"detail": "Invalid credentials."})
         data['accessToken'] = data.get('access')
         data['refreshToken'] = data.get('refresh')
-        
-        # Format user object name key as expected by frontend
         user_data = UserSerializer(self.user).data
-        # Ensure 'name' is in user_data
         user_data['name'] = f"{self.user.first_name} {self.user.last_name}".strip() or self.user.username
         data['user'] = user_data
         return data

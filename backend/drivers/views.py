@@ -1,10 +1,12 @@
 from rest_framework import viewsets, filters
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .models import Driver
 from .serializers import DriverSerializer
 
 class DriverViewSet(viewsets.ModelViewSet):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'license_number', 'contact_number']
     ordering_fields = ['created_at', 'safety_score']

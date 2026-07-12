@@ -1,4 +1,5 @@
 from rest_framework import viewsets, filters, status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Sum, Avg, Count
@@ -9,6 +10,7 @@ from .serializers import FuelLogSerializer
 class FuelLogViewSet(viewsets.ModelViewSet):
     queryset = FuelLog.objects.all()
     serializer_class = FuelLogSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['vehicle__registration_number', 'vehicle__vehicle_name']
     ordering_fields = ['date', 'cost', 'liters', 'odometer']
