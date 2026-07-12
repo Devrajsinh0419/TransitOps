@@ -28,5 +28,6 @@ urlpatterns = [
     path('api/trips/', include('trips.urls')),
     path('api/dashboard/', include('dashboard.urls')),
     path('api/reports/', include('reports.urls')),
+    path('api/settings/', include('accounts.settings_urls')),
 ]
 

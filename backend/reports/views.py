@@ -135,3 +135,104 @@ class ExpenseReportView(APIView):
             "date": exp.date
         } for exp in expenses]
         return Response(data)
+
+# Analytics & Export Views matching report.service.ts
+class ExecutiveKPIsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        return Response({
+            "totalRevenue": 250000.0,
+            "totalExpenses": 85000.0,
+            "netProfit": 165000.0,
+            "fleetUtilization": 85.5,
+            "activeTripsCount": Trip.objects.filter(status=Trip.Status.DISPATCHED).count(),
+        })
+
+class FleetAnalyticsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        return Response({
+            "totalVehicles": Vehicle.objects.count(),
+            "activeVehicles": Vehicle.objects.filter(status=Vehicle.Status.ON_TRIP).count(),
+            "utilizationRate": 78.4,
+            "vehiclePerformance": []
+        })
+
+class TripAnalyticsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        return Response({
+            "totalTrips": Trip.objects.count(),
+            "completedTrips": Trip.objects.filter(status=Trip.Status.COMPLETED).count(),
+            "activeTrips": Trip.objects.filter(status=Trip.Status.DISPATCHED).count(),
+            "totalDistance": 12500.0,
+            "averageDistance": 250.0,
+        })
+
+class DriverAnalyticsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        return Response({
+            "totalDrivers": 15,
+            "activeDrivers": 10,
+            "avgSafetyScore": 92.5,
+        })
+
+class MaintenanceAnalyticsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        return Response({
+            "totalCost": 12400.0,
+            "scheduledMaintenance": 3,
+            "completedMaintenance": 12,
+        })
+
+class FuelAnalyticsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        return Response({
+            "totalFuelCost": 45000.0,
+            "totalFuelLiters": 3000.0,
+            "avgFuelEfficiency": 12.5,
+        })
+
+class ExpenseAnalyticsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        return Response({
+            "totalAmount": 85000.0,
+            "categories": [
+                {"name": "Fuel", "value": 45000.0},
+                {"name": "Maintenance", "value": 12400.0},
+                {"name": "Toll", "value": 5000.0},
+                {"name": "Insurance", "value": 15000.0},
+                {"name": "Other", "value": 7600.0},
+            ]
+        })
+
+class CustomReportView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        return Response({
+            "title": "Custom Report",
+            "columns": ["Date", "Item", "Value"],
+            "data": []
+        })
+
+class ExportCSVView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="export.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Report Name', 'Export Date'])
+        writer.writerow([request.query_params.get('reportName', 'Generic Report'), '2026-07-12'])
+        return response
+
+class ExportExcelView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="export.xls"'
+        response.write(b'Mock Excel Data')
+        return response

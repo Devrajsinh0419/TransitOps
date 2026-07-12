@@ -38,3 +38,54 @@ class DashboardStatsView(APIView):
             "total_expenses": float(total_expenses)
         }
         return Response(data)
+
+class FleetOverviewView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        total = Vehicle.objects.count()
+        active = Vehicle.objects.filter(status=Vehicle.Status.ON_TRIP).count()
+        available = Vehicle.objects.filter(status=Vehicle.Status.AVAILABLE).count()
+        in_shop = Vehicle.objects.filter(status=Vehicle.Status.IN_SHOP).count()
+        
+        return Response({
+            "total": total,
+            "active": active,
+            "available": available,
+            "in_shop": in_shop
+        })
+
+class TripsSummaryView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        recent_trips = Trip.objects.all().order_by('-created_at')[:5]
+        data = [{
+            "id": trip.id,
+            "source": trip.source,
+            "destination": trip.destination,
+            "driver": trip.driver.name,
+            "status": trip.status,
+            "dispatch_date": trip.dispatch_date
+        } for trip in recent_trips]
+        return Response(data)
+
+class ActivitiesView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        # Generate dummy/recent activities
+        return Response([
+            {"id": 1, "description": "Trip dispatched to driver John", "timestamp": "2026-07-12T12:00:00Z"},
+            {"id": 2, "description": "Vehicle status changed to Available", "timestamp": "2026-07-12T11:30:00Z"},
+            {"id": 3, "description": "New fuel log added for GJ01AB1234", "timestamp": "2026-07-12T10:45:00Z"}
+        ])
+
+class NotificationsView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        return Response([
+            {"id": 1, "title": "Low fuel alert", "message": "Vehicle GJ01AB1234 has low fuel.", "type": "warning", "timestamp": "2026-07-12T12:00:00Z"},
+            {"id": 2, "title": "Maintenance Due", "message": "Vehicle MH12CD5678 maintenance is due.", "type": "info", "timestamp": "2026-07-12T09:00:00Z"}
+        ])

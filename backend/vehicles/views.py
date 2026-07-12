@@ -1,4 +1,6 @@
 from rest_framework import viewsets, filters
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from .models import Vehicle
 from .serializers import VehicleSerializer
 
@@ -16,3 +18,18 @@ class VehicleViewSet(viewsets.ModelViewSet):
         if status:
             queryset = queryset.filter(status=status)
         return queryset
+
+    @action(detail=True, methods=['post'])
+    def archive(self, request, pk=None):
+        vehicle = self.get_object()
+        vehicle.status = Vehicle.Status.RETIRED
+        vehicle.save()
+        return Response(self.get_serializer(vehicle).data)
+
+    @action(detail=True, methods=['post'])
+    def restore(self, request, pk=None):
+        vehicle = self.get_object()
+        vehicle.status = Vehicle.Status.AVAILABLE
+        vehicle.save()
+        return Response(self.get_serializer(vehicle).data)
+
