@@ -1,80 +1,70 @@
+'use client';
+
 import React from 'react';
-import { PageContainer } from '@/components/layouts/PageContainer';
-import { PageHeader } from '@/components/layouts/PageHeader';
-import { CreditCard, Plus, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
+import { useExpenses } from '@/hooks/useExpenses';
+import { ExpenseSummary, ExpenseToolbar, ExpenseTable, ExpenseSkeleton } from '@/components/expenses';
+import { Button } from '@/components/ui/Button';
+import { Plus, Landmark } from 'lucide-react';
 
 export default function ExpensesPage() {
+  const {
+    expenses,
+    filters,
+    setFilters,
+    summary,
+    isLoading,
+    deleteLocalExpense,
+    refetch,
+  } = useExpenses();
+
+  if (isLoading && expenses.length === 0) {
+    return <ExpenseSkeleton />;
+  }
+
   return (
-    <PageContainer>
-      <PageHeader
-        title="Expense Tracker"
-        description="Verify vehicle/trip costs, submit approvals, and audit operational cashflows"
-      >
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer">
-          <RefreshCw className="h-3.5 w-3.5" />
-          Sync
-        </button>
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer">
-          <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
-          Log Expense
-        </button>
-      </PageHeader>
-
-      <div className="border border-border bg-card rounded-2xl p-6 shadow-soft max-w-3xl mx-auto">
-        <div className="flex items-center gap-3 pb-4 border-b border-border/60 mb-5">
-          <CreditCard className="h-6 w-6 text-primary" />
-          <div>
-            <h3 className="font-semibold text-foreground text-base">Expenses Module Architecture</h3>
-            <p className="text-xs text-muted-foreground">Boilerplate configuration and interfaces for this module</p>
-          </div>
+    <div className="space-y-6 select-none text-left">
+      {/* Header section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-border/40 gap-3">
+        <div className="space-y-1">
+          <h1 className="text-lg font-black text-foreground flex items-center gap-2 uppercase tracking-tight">
+            <Landmark className="h-5 w-5 text-primary" />
+            Expense Auditing
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Audit general operating costs, log roadside trip tolls, and check vehicle insurance invoices.
+          </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Service Operations</h4>
-              <div className="font-mono text-[10px] text-muted-foreground bg-muted p-2.5 rounded-lg space-y-1.5">
-                <div>• expenseService.getAll(params)</div>
-                <div>• expenseService.getById(id)</div>
-                <div>• expenseService.create(data)</div>
-                <div>• expenseService.update(id, data)</div>
-                <div>• expenseService.approve(id)</div>
-                <div>• expenseService.reject(id)</div>
-                <div>• expenseService.delete(id)</div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">TypeScript Interfaces</h4>
-              <div className="font-mono text-[10px] text-muted-foreground bg-muted p-2.5 rounded-lg space-y-1.5">
-                <div>• Type: <span className="text-foreground">ExpenseRecord</span></div>
-                <div>• Category: <span className="text-foreground">ExpenseCategory</span></div>
-                <div>• Status: <span className="text-foreground">ExpenseStatus</span></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Target Hooks</h4>
-              <div className="font-mono text-[10px] text-muted-foreground bg-muted p-2.5 rounded-lg space-y-1.5">
-                <div>• usePagination (table pagination state)</div>
-                <div>• useDebounce (searching filter inputs)</div>
-                <div>• useQuery (TanStack state manager)</div>
-              </div>
-            </div>
-
-            <div className="border border-dashed border-border rounded-xl p-4 flex flex-col justify-center items-center text-center">
-              <span className="text-[10px] font-semibold text-primary uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-full mb-2">
-                Ready for Step 2
-              </span>
-              <p className="text-[11px] text-muted-foreground">
-                Import components like Tables, Badges, SearchInput and connect TanStack Query.
-              </p>
-            </div>
-          </div>
-        </div>
+        <Link href="/expenses/new">
+          <Button
+            size="sm"
+            className="h-9 text-xs font-extrabold bg-primary hover:bg-primary/95 text-primary-foreground rounded-lg gap-1.5 shadow"
+            leftIcon={<Plus className="h-4 w-4" />}
+          >
+            Log Expense
+          </Button>
+        </Link>
       </div>
-    </PageContainer>
+
+      {/* Summary counters */}
+      <ExpenseSummary summary={summary} />
+
+      {/* Filters toolbar */}
+      <ExpenseToolbar filters={filters} onChange={setFilters} onRefresh={refetch} />
+
+      {/* Data table list */}
+      {expenses.length === 0 ? (
+        <div className="p-12 border border-dashed border-border/50 bg-card rounded-2xl flex flex-col items-center justify-center gap-2">
+          <Landmark className="h-8 w-8 text-muted-foreground/60" />
+          <h3 className="text-xs font-bold text-foreground">No expenses logged</h3>
+          <p className="text-[10px] text-muted-foreground max-w-xs text-center">
+            Try adjusting search queries or submit a new invoice for audit.
+          </p>
+        </div>
+      ) : (
+        <ExpenseTable expenses={expenses} onDelete={deleteLocalExpense} />
+      )}
+    </div>
   );
 }

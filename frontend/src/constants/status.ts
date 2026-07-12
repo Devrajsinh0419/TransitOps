@@ -59,14 +59,16 @@ export const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
 };
 
 export const MAINTENANCE_STATUSES: Record<string, MaintenanceStatus> = {
-  SCHEDULED: 'scheduled',
+  PENDING: 'pending',
+  APPROVED: 'approved',
   IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
 };
 
 export const MAINTENANCE_STATUS_LABELS: Record<MaintenanceStatus, string> = {
-  scheduled: 'Scheduled',
+  pending: 'Pending',
+  approved: 'Approved',
   in_progress: 'In Progress',
   completed: 'Completed',
   cancelled: 'Cancelled',

@@ -1,76 +1,95 @@
+'use client';
+
 import React from 'react';
-import { PageContainer } from '@/components/layouts/PageContainer';
-import { PageHeader } from '@/components/layouts/PageHeader';
-import { Fuel, Plus, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
+import { useFuelLogs } from '@/hooks/useFuelLogs';
+import { FuelSummary, FuelChart, FuelToolbar, FuelTable, FuelSkeleton } from '@/components/fuel';
+import { Button } from '@/components/ui/Button';
+import { Plus, Fuel as FuelIcon } from 'lucide-react';
 
 export default function FuelPage() {
-  return (
-    <PageContainer>
-      <PageHeader
-        title="Fuel Logs"
-        description="Record fuel purchases, monitor usage metrics, and audit filling receipts"
-      >
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer">
-          <RefreshCw className="h-3.5 w-3.5" />
-          Sync
-        </button>
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer">
-          <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
-          Log Fuel Refill
-        </button>
-      </PageHeader>
+  const {
+    fuelLogs,
+    filters,
+    setFilters,
+    summary,
+    isLoading,
+    refetch,
+  } = useFuelLogs();
 
-      <div className="border border-border bg-card rounded-2xl p-6 shadow-soft max-w-3xl mx-auto">
-        <div className="flex items-center gap-3 pb-4 border-b border-border/60 mb-5">
-          <Fuel className="h-6 w-6 text-primary" />
-          <div>
-            <h3 className="font-semibold text-foreground text-base">Fuel Logs Module Architecture</h3>
-            <p className="text-xs text-muted-foreground">Boilerplate configuration and interfaces for this module</p>
-          </div>
+  if (isLoading && fuelLogs.length === 0) {
+    return <FuelSkeleton />;
+  }
+
+  return (
+    <div className="space-y-6 select-none text-left">
+      {/* Header section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-border/40 gap-3">
+        <div className="space-y-1">
+          <h1 className="text-lg font-black text-foreground flex items-center gap-2 uppercase tracking-tight">
+            <FuelIcon className="h-5 w-5 text-primary" />
+            Fuel Log Audit
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Monitor fleet refilling transactions, examine mileage efficiencies, and track fuel Station receipts.
+          </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Service Operations</h4>
-              <div className="font-mono text-[10px] text-muted-foreground bg-muted p-2.5 rounded-lg space-y-1.5">
-                <div>• fuelService.getAll(params)</div>
-                <div>• fuelService.getById(id)</div>
-                <div>• fuelService.create(data)</div>
-                <div>• fuelService.update(id, data)</div>
-                <div>• fuelService.delete(id)</div>
-              </div>
-            </div>
+        <Link href="/fuel/new">
+          <Button
+            size="sm"
+            className="h-9 text-xs font-extrabold bg-primary hover:bg-primary/95 text-primary-foreground rounded-lg gap-1.5 shadow"
+            leftIcon={<Plus className="h-4 w-4" />}
+          >
+            Log Fuel Refill
+          </Button>
+        </Link>
+      </div>
 
-            <div>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">TypeScript Interfaces</h4>
-              <div className="font-mono text-[10px] text-muted-foreground bg-muted p-2.5 rounded-lg space-y-1.5">
-                <div>• Type: <span className="text-foreground">FuelLog</span></div>
-              </div>
-            </div>
+      {/* Fuel Summary Cards */}
+      <FuelSummary summary={summary} />
+
+      {/* Analytics Chart & Info Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <FuelChart logs={fuelLogs} />
+        </div>
+        
+        {/* Helper Panel */}
+        <div className="p-6 border border-border/50 bg-card rounded-2xl flex flex-col justify-between space-y-4">
+          <div className="space-y-2">
+            <span className="text-[9px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+              FLEET POLICY NOTICE
+            </span>
+            <h4 className="text-xs font-extrabold text-foreground">Receipt Compliance Audit</h4>
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              All fuel transaction logs must contain valid invoice reference numbers and receipt scans. Under-reporting odometer numbers or discrepancy in fuel Station location logs triggers compliance flags.
+            </p>
           </div>
-
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Target Hooks</h4>
-              <div className="font-mono text-[10px] text-muted-foreground bg-muted p-2.5 rounded-lg space-y-1.5">
-                <div>• usePagination (table pagination state)</div>
-                <div>• useDebounce (searching filter inputs)</div>
-                <div>• useQuery (TanStack state manager)</div>
-              </div>
-            </div>
-
-            <div className="border border-dashed border-border rounded-xl p-4 flex flex-col justify-center items-center text-center">
-              <span className="text-[10px] font-semibold text-primary uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-full mb-2">
-                Ready for Step 2
-              </span>
-              <p className="text-[11px] text-muted-foreground">
-                Import components like Tables, Badges, SearchInput and connect TanStack Query.
-              </p>
+          <div className="border-t border-border/30 pt-3">
+            <div className="flex items-center justify-between text-[10px] text-muted-foreground font-semibold">
+              <span>Next Audit Cycle</span>
+              <span className="text-foreground font-extrabold">Weekly (Fridays)</span>
             </div>
           </div>
         </div>
       </div>
-    </PageContainer>
+
+      {/* Query Filters */}
+      <FuelToolbar filters={filters} onChange={setFilters} onRefresh={refetch} />
+
+      {/* Roster Table List */}
+      {fuelLogs.length === 0 ? (
+        <div className="p-12 border border-dashed border-border/50 bg-card rounded-2xl flex flex-col items-center justify-center gap-2">
+          <FuelIcon className="h-8 w-8 text-muted-foreground/60" />
+          <h3 className="text-xs font-bold text-foreground">No fuel logs registered</h3>
+          <p className="text-[10px] text-muted-foreground max-w-xs text-center">
+            Try adjusting search queries or log a new fuel refilling receipt.
+          </p>
+        </div>
+      ) : (
+        <FuelTable logs={fuelLogs} />
+      )}
+    </div>
   );
 }

@@ -282,4 +282,5 @@ export function useVehicles() {
   };
 }
 
+export { activeVehicles };
 export default useVehicles;
