@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ExpenseRecord } from '@/types/expense';
-import { activeExpenses } from './useExpenses';
+import { expenseService } from '@/services/expense.service';
 
 export function useExpense(id: string) {
   const [expense, setExpense] = useState<ExpenseRecord | null>(null);
@@ -11,19 +11,19 @@ export function useExpense(id: string) {
 
   useEffect(() => {
     if (!id) return;
-    setIsLoading(true);
-    setError(null);
-    const timer = setTimeout(() => {
-      const found = activeExpenses.find((e) => e.id === id || e.expenseId === id);
-      if (found) {
-        setExpense({ ...found });
-      } else {
+    const fetchExpense = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await expenseService.getExpense(id);
+        setExpense(data);
+      } catch (err: any) {
         setError('Expense record not found');
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
+    };
+    fetchExpense();
   }, [id]);
 
   return {

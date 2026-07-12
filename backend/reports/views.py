@@ -9,6 +9,7 @@ from trips.models import Trip
 from vehicles.models import Vehicle
 from fuel.models import FuelLog
 from expenses.models import Expense
+from drivers.models import Driver
 
 class TripHistoryReportView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -221,18 +222,69 @@ class CustomReportView(APIView):
 
 class ExportCSVView(APIView):
     permission_classes = (IsAuthenticated,)
+
     def get(self, request):
+        report_name = request.query_params.get('reportName', 'generic').lower()
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="export.csv"'
+        response['Content-Disposition'] = f'attachment; filename="{report_name}_report.csv"'
+        
         writer = csv.writer(response)
-        writer.writerow(['Report Name', 'Export Date'])
-        writer.writerow([request.query_params.get('reportName', 'Generic Report'), '2026-07-12'])
+        
+        if report_name == 'fleet':
+            writer.writerow(['ID', 'Registration Number', 'Vehicle Name', 'Vehicle Type', 'Status', 'Current Odometer'])
+            for v in Vehicle.objects.all():
+                writer.writerow([v.id, v.registration_number, v.vehicle_name, v.vehicle_type, v.status, v.current_odometer])
+                
+        elif report_name == 'trips':
+            writer.writerow(['ID', 'Trip Number', 'Driver', 'Vehicle', 'Source', 'Destination', 'Status', 'Start Date'])
+            for t in Trip.objects.all():
+                driver_name = f"{t.driver.first_name} {t.driver.last_name}" if t.driver else "None"
+                vehicle_name = t.vehicle.registration_number if t.vehicle else "None"
+                writer.writerow([t.id, t.trip_number, driver_name, vehicle_name, t.source, t.destination, t.status, t.start_date])
+                
+        elif report_name == 'drivers':
+            writer.writerow(['ID', 'Name', 'Email', 'License Number', 'Status'])
+            for d in Driver.objects.all():
+                writer.writerow([d.id, f"{d.first_name} {d.last_name}", d.email, d.license_number, d.status])
+                
+        elif report_name == 'fuel':
+            writer.writerow(['ID', 'Vehicle', 'Liters', 'Cost', 'Odometer', 'Date', 'Fuel Type', 'Fuel Station', 'Invoice Number'])
+            for f in FuelLog.objects.all():
+                writer.writerow([f.id, f.vehicle.registration_number, f.liters, f.cost, f.odometer, f.date, f.fuel_type, f.fuel_station, f.invoice_number])
+                
+        elif report_name == 'expenses':
+            writer.writerow(['ID', 'Vehicle', 'Expense Type', 'Category', 'Amount', 'Status', 'Date', 'Invoice Number'])
+            for e in Expense.objects.all():
+                writer.writerow([e.id, e.vehicle.registration_number, e.expense_type, e.category, e.amount, e.status, e.date, e.invoice_number])
+                
+        else:
+            writer.writerow(['Report Name', 'Export Date'])
+            writer.writerow([report_name.capitalize(), '2026-07-12'])
+            
         return response
 
 class ExportExcelView(APIView):
     permission_classes = (IsAuthenticated,)
+
     def get(self, request):
+        report_name = request.query_params.get('reportName', 'generic').lower()
         response = HttpResponse(content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment; filename="export.xls"'
-        response.write(b'Mock Excel Data')
+        response['Content-Disposition'] = f'attachment; filename="{report_name}_report.xls"'
+        
+        writer = csv.writer(response, delimiter='\t')
+        
+        if report_name == 'fleet':
+            writer.writerow(['ID', 'Registration Number', 'Vehicle Name', 'Vehicle Type', 'Status', 'Current Odometer'])
+            for v in Vehicle.objects.all():
+                writer.writerow([v.id, v.registration_number, v.vehicle_name, v.vehicle_type, v.status, v.current_odometer])
+        elif report_name == 'trips':
+            writer.writerow(['ID', 'Trip Number', 'Driver', 'Vehicle', 'Source', 'Destination', 'Status'])
+            for t in Trip.objects.all():
+                driver_name = f"{t.driver.first_name} {t.driver.last_name}" if t.driver else "None"
+                vehicle_name = t.vehicle.registration_number if t.vehicle else "None"
+                writer.writerow([t.id, t.trip_number, driver_name, vehicle_name, t.source, t.destination, t.status])
+        else:
+            writer.writerow(['Report Name', 'Export Date'])
+            writer.writerow([report_name.capitalize(), '2026-07-12'])
+            
         return response

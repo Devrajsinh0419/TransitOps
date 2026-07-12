@@ -76,19 +76,40 @@ class ProfileView(APIView):
             "email": user.email,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "firstName": user.first_name,
+            "lastName": user.last_name,
             "role": user.role,
             "contact_number": getattr(user, 'contact_number', ''),
-            "avatar_url": None,
+            "avatarUrl": None,
         })
 
     def put(self, request):
         user = request.user
         data = request.data
-        user.first_name = data.get('first_name', user.first_name)
-        user.last_name = data.get('last_name', user.last_name)
+        user.first_name = data.get('firstName', data.get('first_name', user.first_name))
+        user.last_name = data.get('lastName', data.get('last_name', user.last_name))
         user.email = data.get('email', user.email)
         user.save()
         return self.get(request)
+
+class ChangePasswordView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+        old_password = request.data.get('old_password', request.data.get('oldPassword'))
+        new_password = request.data.get('new_password', request.data.get('newPassword'))
+        
+        if not old_password or not new_password:
+            return Response({"detail": "Both old_password and new_password are required."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if not user.check_password(old_password):
+            return Response({"detail": "Incorrect old password."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user.set_password(new_password)
+        user.save()
+        return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+
 
 class UserSettingsViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

@@ -8,6 +8,11 @@ export const expenseService = {
     return response.data;
   },
 
+  getExpense: async (id: string): Promise<ExpenseRecord> => {
+    const response = await apiClient.get<ExpenseRecord>(`/expenses/${id}`);
+    return response.data;
+  },
+
   createExpense: async (data: Partial<ExpenseRecord>): Promise<ExpenseRecord> => {
     const response = await apiClient.post<ExpenseRecord>('/expenses', data);
     return response.data;

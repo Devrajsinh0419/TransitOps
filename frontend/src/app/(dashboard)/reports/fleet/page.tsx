@@ -11,6 +11,7 @@ import {
   AnalyticsSkeleton,
 } from '@/components/reports';
 import { toast } from 'sonner';
+import { downloadReport } from '@/lib/export';
 
 export default function FleetReportsPage() {
   const [showFilters, setShowFilters] = React.useState(false);
@@ -23,7 +24,7 @@ export default function FleetReportsPage() {
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-    toast.success(`Exporting fleet reports as ${format.toUpperCase()}...`);
+    downloadReport('fleet', format, filters);
   };
 
   if (isLoading || !data) {

@@ -12,6 +12,7 @@ export const fuelSchema = z.object({
   fuelStation: z.string().min(1, { message: 'Fuel station name is required' }),
   invoiceNumber: z.string().min(1, { message: 'Invoice / Receipt number is required' }),
   receiptImage: z.string().optional(),
+  attachmentUrl: z.string().optional(),
   date: z.string().min(1, { message: 'Log date is required' }),
 });
 

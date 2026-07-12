@@ -2,12 +2,24 @@ from rest_framework import serializers
 from .models import Expense
 from vehicles.serializers import VehicleSerializer
 
+from django.conf import settings
+
 class ExpenseSerializer(serializers.ModelSerializer):
     vehicle_detail = VehicleSerializer(source='vehicle', read_only=True)
+    invoiceNumber = serializers.CharField(source='invoice_number', required=False, allow_blank=True)
+    attachmentUrl = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Expense
         fields = '__all__'
+
+    def get_attachmentUrl(self, obj):
+        if obj.receipt:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.receipt.url)
+            return obj.receipt.url
+        return None
 
     def validate(self, attrs):
         exp_type = attrs.get('expense_type')
@@ -29,3 +41,35 @@ class ExpenseSerializer(serializers.ModelSerializer):
             attrs['category'] = exp_type
             
         return attrs
+
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        
+        if 'invoiceNumber' in data:
+            data['invoice_number'] = data['invoiceNumber']
+        if 'expenseType' in data:
+            data['expense_type'] = data['expenseType']
+            
+        attachment_url = data.get('attachmentUrl') or data.get('receipt')
+        if attachment_url and isinstance(attachment_url, str):
+            media_url = settings.MEDIA_URL
+            relative_path = attachment_url
+            if relative_path.startswith(media_url):
+                relative_path = relative_path[len(media_url):]
+            if '://' in relative_path:
+                parts = relative_path.split(media_url, 1)
+                if len(parts) > 1:
+                    relative_path = parts[1]
+            data['receipt'] = relative_path
+
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['invoiceNumber'] = instance.invoice_number
+        ret['expenseType'] = instance.expense_type
+        ret['attachmentUrl'] = self.get_attachmentUrl(instance)
+        ret['vehicleId'] = instance.vehicle_id
+        ret['vehicleRegistration'] = instance.vehicle.registration_number
+        ret['vehicleName'] = instance.vehicle.vehicle_name
+        return ret

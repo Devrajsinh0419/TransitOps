@@ -2,59 +2,76 @@
 
 import { useState, useEffect } from 'react';
 import { Profile } from '@/types/settings';
+import { settingsService } from '@/services/settings.service';
+import { authStore } from '@/store/auth.store';
 import { toast } from 'sonner';
-
-const DEFAULT_PROFILE: Profile = {
-  firstName: 'Sarah',
-  lastName: 'Jenkins',
-  email: 'sjenkins@transitops.com',
-  phone: '+1 (555) 912-3847',
-  role: 'Fleet Manager',
-  department: 'Operations',
-  employeeId: 'EMP-9921',
-  avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  bio: 'Lead Operations Supervisor managing dispatching schedules, fleet routing compliance, and fuel logs.',
-  timezone: 'America/Chicago',
-  language: 'en',
-  address: '402 Oak Ridge Dr, Houston, TX 77002',
-  emergencyContact: 'John Jenkins (+1 555-882-9912)',
-};
 
 export function useProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // In-memory simulation
-    const saved = localStorage.getItem('transitops_profile');
-    if (saved) {
-      setProfile(JSON.parse(saved));
-    } else {
-      setProfile(DEFAULT_PROFILE);
-      localStorage.setItem('transitops_profile', JSON.stringify(DEFAULT_PROFILE));
+  const fetchProfile = async () => {
+    setIsLoading(true);
+    try {
+      const data = await settingsService.getProfile();
+      setProfile(data);
+    } catch (e: any) {
+      toast.error('Failed to load profile details');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProfile();
   }, []);
 
   const updateProfile = async (data: Partial<Profile>): Promise<boolean> => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
-    if (profile) {
-      const updated = { ...profile, ...data };
+    try {
+      const updated = await settingsService.updateProfile(data);
       setProfile(updated);
-      localStorage.setItem('transitops_profile', JSON.stringify(updated));
+      
+      const currentUser = authStore.getState().user;
+      if (currentUser) {
+        const newName = `${updated.firstName || ''} ${updated.lastName || ''}`.trim();
+        authStore.setUser({
+          ...currentUser,
+          email: updated.email,
+          name: newName || currentUser.name
+        });
+      }
       toast.success('Your profile has been updated successfully!');
+      return true;
+    } catch (err: any) {
+      const msg = err.response?.data?.detail || 'Failed to update profile details';
+      toast.error('Update Failed', { description: msg });
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
-    return true;
+  };
+
+  const changePassword = async (data: Record<string, string>): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      await settingsService.changePassword(data);
+      toast.success('Your password has been changed successfully!');
+      return true;
+    } catch (err: any) {
+      const msg = err.response?.data?.detail || 'Failed to update password';
+      toast.error('Password Update Failed', { description: msg });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return {
     profile,
     isLoading,
     updateProfile,
+    changePassword,
   };
 }
 

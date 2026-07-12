@@ -11,6 +11,7 @@ import {
   AnalyticsSkeleton,
 } from '@/components/reports';
 import { toast } from 'sonner';
+import { downloadReport } from '@/lib/export';
 
 export default function FuelReportsPage() {
   const [showFilters, setShowFilters] = React.useState(false);
@@ -23,7 +24,7 @@ export default function FuelReportsPage() {
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-    toast.success(`Exporting fuel reports as ${format.toUpperCase()}...`);
+    downloadReport('fuel', format, filters);
   };
 
   if (isLoading || !data) {

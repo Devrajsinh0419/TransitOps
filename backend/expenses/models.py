@@ -27,6 +27,7 @@ class Expense(models.Model):
         default=Status.PENDING
     )
     receipt = models.FileField(upload_to='receipts/', null=True, blank=True)
+    invoice_number = models.CharField(max_length=100, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

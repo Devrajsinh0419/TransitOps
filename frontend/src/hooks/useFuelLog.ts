@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FuelLog } from '@/types/fuel';
-import { activeFuelLogs } from './useFuelLogs';
+import { fuelService } from '@/services/fuel.service';
 
 export function useFuelLog(id: string) {
   const [log, setLog] = useState<FuelLog | null>(null);
@@ -11,19 +11,19 @@ export function useFuelLog(id: string) {
 
   useEffect(() => {
     if (!id) return;
-    setIsLoading(true);
-    setError(null);
-    const timer = setTimeout(() => {
-      const found = activeFuelLogs.find((l) => l.id === id || l.fuelLogId === id);
-      if (found) {
-        setLog({ ...found });
-      } else {
+    const fetchFuelLog = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await fuelService.getFuelLog(id);
+        setLog(data);
+      } catch (err: any) {
         setError('Fuel log not found');
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
+    };
+    fetchFuelLog();
   }, [id]);
 
   return {

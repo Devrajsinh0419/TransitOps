@@ -78,6 +78,11 @@ export const settingsService = {
     const response = await apiClient.put<SecuritySettings>('/settings/security', data);
     return response.data;
   },
+
+  changePassword: async (data: Record<string, string>): Promise<any> => {
+    const response = await apiClient.post('/settings/change-password', data);
+    return response.data;
+  },
 };
 
 export default settingsService;

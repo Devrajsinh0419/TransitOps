@@ -32,6 +32,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def to_internal_value(self, data):
+        # Map 'email' to 'username' if 'username' is not present
+        if 'username' not in data and 'email' in data:
+            data = data.copy() if hasattr(data, 'copy') else dict(data)
+            data['username'] = data['email']
+        return super().to_internal_value(data)
+
     def validate(self, attrs):
         username_or_email = attrs.get(self.username_field)
         if username_or_email and '@' in username_or_email:

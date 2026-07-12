@@ -9,6 +9,7 @@ import {
   CustomReportBuilder,
 } from '@/components/reports';
 import { toast } from 'sonner';
+import { downloadReport } from '@/lib/export';
 
 export default function CustomReportsPage() {
   const [showFilters, setShowFilters] = React.useState(false);
@@ -19,7 +20,7 @@ export default function CustomReportsPage() {
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-    toast.success(`Exporting builder configurations as ${format.toUpperCase()}...`);
+    downloadReport('custom', format, filters);
   };
 
   return (

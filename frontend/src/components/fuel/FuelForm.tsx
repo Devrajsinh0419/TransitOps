@@ -10,8 +10,10 @@ import { Select } from '../forms/Select';
 import { activeVehicles } from '@/hooks/useVehicles';
 import { activeDrivers } from '@/hooks/useDrivers';
 import { activeTrips } from '@/hooks/useTrips';
-import { Save, ArrowLeft, Fuel, FileText } from 'lucide-react';
+import { Save, ArrowLeft, Fuel, FileText, X } from 'lucide-react';
 import Link from 'next/link';
+import apiClient from '@/services/axios';
+import { toast } from 'sonner';
 
 interface FuelFormProps {
   onSubmit: (data: FuelSchemaInput) => void;
@@ -19,6 +21,10 @@ interface FuelFormProps {
 }
 
 export function FuelForm({ onSubmit, isLoading = false }: FuelFormProps) {
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [uploading, setUploading] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const {
     register,
     handleSubmit,
@@ -44,8 +50,49 @@ export function FuelForm({ onSubmit, isLoading = false }: FuelFormProps) {
     setValue('totalCost', calculatedTotal);
   }, [quantity, pricePerLiter, setValue]);
 
-  const onSubmitForm = (data: FuelSchemaInput) => {
-    onSubmit(data);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Validation Error', { description: 'File size exceeds 5MB limit.' });
+        return;
+      }
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Validation Error', { description: 'Only PDF, JPEG, and PNG files are allowed.' });
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUploadFile = async (file: File): Promise<string | null> => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await apiClient.post<{ url: string }>('/upload/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.url;
+    } catch (err: any) {
+      toast.error('Upload Error', { description: 'Failed to upload attachment.' });
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const onSubmitForm = async (data: FuelSchemaInput) => {
+    let attachmentUrl = data.attachmentUrl;
+    if (selectedFile) {
+      const uploadedUrl = await handleUploadFile(selectedFile);
+      if (!uploadedUrl) return;
+      attachmentUrl = uploadedUrl;
+    }
+    onSubmit({ ...data, attachmentUrl });
   };
 
   return (
@@ -234,16 +281,54 @@ export function FuelForm({ onSubmit, isLoading = false }: FuelFormProps) {
             </div>
           </div>
 
-          {/* Receipt Upload Mock */}
+          {/* Refuel Receipt Attachment */}
           <div className="space-y-1.5 text-left">
             <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Refuel Receipt Attachment
             </label>
-            <div className="border border-dashed border-border/60 rounded-xl p-4 bg-muted/5 flex flex-col items-center justify-center gap-1 hover:bg-muted/10 transition-colors cursor-pointer">
-              <FileText className="h-6 w-6 text-muted-foreground/60" />
-              <span className="text-[10px] font-bold text-foreground">Upload refuel receipt invoice image</span>
-              <span className="text-[8px] text-muted-foreground">PDF, JPEG, PNG up to 5MB (Simulated)</span>
-            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="application/pdf,image/jpeg,image/png,image/jpg"
+              className="hidden"
+            />
+            
+            {!selectedFile ? (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border border-dashed border-border/60 rounded-xl p-4 bg-muted/5 flex flex-col items-center justify-center gap-1 hover:bg-muted/10 transition-colors cursor-pointer"
+              >
+                <FileText className="h-6 w-6 text-muted-foreground/60" />
+                <span className="text-[10px] font-bold text-foreground">Upload refuel receipt invoice image</span>
+                <span className="text-[8px] text-muted-foreground">PDF, JPEG, PNG up to 5MB</span>
+              </div>
+            ) : (
+              <div className="border border-border/60 rounded-xl p-3 bg-muted/20 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary shrink-0" />
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] font-bold text-foreground truncate max-w-[200px]">
+                      {selectedFile.name}
+                    </span>
+                    <span className="text-[8px] text-muted-foreground">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedFile(null)}
+                  className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            
+            {uploading && (
+              <span className="text-[8px] font-bold text-primary animate-pulse">Uploading file...</span>
+            )}
           </div>
         </div>
 

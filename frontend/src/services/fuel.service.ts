@@ -8,6 +8,11 @@ export const fuelService = {
     return response.data;
   },
 
+  getFuelLog: async (id: string): Promise<FuelLog> => {
+    const response = await apiClient.get<FuelLog>(`/fuel-logs/${id}`);
+    return response.data;
+  },
+
   createFuelLog: async (data: Partial<FuelLog>): Promise<FuelLog> => {
     const response = await apiClient.post<FuelLog>('/fuel-logs', data);
     return response.data;

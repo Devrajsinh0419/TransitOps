@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { ShieldCheck, Truck, Users, ArrowUpRight, Activity } from 'lucide-react';
 import { toast } from 'sonner';
+import { downloadReport } from '@/lib/export';
 
 export default function ReportsHomePage() {
   const [showFilters, setShowFilters] = React.useState(false);
@@ -31,7 +32,7 @@ export default function ReportsHomePage() {
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-    toast.success(`Exporting executive reports as ${format.toUpperCase()}...`);
+    downloadReport('executive', format, filters);
   };
 
   const handleClearFilters = () => {
