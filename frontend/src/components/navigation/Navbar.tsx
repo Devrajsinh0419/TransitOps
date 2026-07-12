@@ -10,8 +10,10 @@ export function Navbar() {
   const { theme, setTheme } = useTheme();
   const [authSession, setAuthSession] = useState(authStore.getState());
   const [uiState, setUiState] = useState(uiStore.getState());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const unsubAuth = authStore.subscribe((state) => setAuthSession(state));
     const unsubUi = uiStore.subscribe((state) => setUiState(state));
     return () => {
@@ -80,14 +82,14 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <div className="hidden md:flex flex-col text-right">
             <span className="text-xs font-semibold text-foreground truncate max-w-[120px]">
-              {user ? user.name : 'Guest User'}
+              {mounted && user ? user.name : 'Guest User'}
             </span>
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-              {user ? user.role.replace('_', ' ') : 'Viewer'}
+              {mounted && user ? user.role.replace('_', ' ') : 'Viewer'}
             </span>
           </div>
           <div className="flex h-9.5 w-9.5 items-center justify-center rounded-xl bg-muted border border-border text-muted-foreground overflow-hidden">
-            {user?.avatarUrl ? (
+            {mounted && user?.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
             ) : (

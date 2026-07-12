@@ -16,8 +16,10 @@ export function ProfileDropdown({ className }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [authSession, setAuthSession] = useState(authStore.getState());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const unsubscribe = authStore.subscribe((state) => setAuthSession(state));
     return unsubscribe;
   }, []);
@@ -46,7 +48,7 @@ export function ProfileDropdown({ className }: ProfileDropdownProps) {
         className="flex items-center gap-2 px-1.5 py-1 rounded-xl hover:bg-muted/65 transition-colors cursor-pointer text-left"
       >
         <div className="flex h-9.5 w-9.5 items-center justify-center rounded-xl bg-muted border border-border text-muted-foreground overflow-hidden shrink-0">
-          {user?.avatarUrl ? (
+          {mounted && user?.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
           ) : (
@@ -55,10 +57,10 @@ export function ProfileDropdown({ className }: ProfileDropdownProps) {
         </div>
         <div className="hidden md:flex flex-col max-w-[100px]">
           <span className="text-xs font-semibold text-foreground truncate">
-            {user ? user.name : 'Guest User'}
+            {mounted && user ? user.name : 'Guest User'}
           </span>
           <span className="text-[9px] font-medium text-muted-foreground uppercase tracking-wider truncate">
-            {user ? user.role.replace('_', ' ') : 'Viewer'}
+            {mounted && user ? user.role.replace('_', ' ') : 'Viewer'}
           </span>
         </div>
         <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60 hidden md:block" />
@@ -74,8 +76,8 @@ export function ProfileDropdown({ className }: ProfileDropdownProps) {
             className="absolute right-0 z-50 mt-1.5 w-48 bg-popover text-popover-foreground border border-border rounded-xl shadow-premium overflow-hidden"
           >
             <div className="p-3 border-b border-border/60 bg-muted/15 flex flex-col">
-              <span className="text-xs font-bold text-foreground truncate">{user?.name || 'Guest User'}</span>
-              <span className="text-[10px] text-muted-foreground truncate mt-0.5">{user?.email || 'guest@transitops.com'}</span>
+              <span className="text-xs font-bold text-foreground truncate">{mounted && user?.name || 'Guest User'}</span>
+              <span className="text-[10px] text-muted-foreground truncate mt-0.5">{mounted && user?.email || 'guest@transitops.com'}</span>
             </div>
 
             <div className="p-1 space-y-0.5">

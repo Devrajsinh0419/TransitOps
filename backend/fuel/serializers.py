@@ -12,6 +12,29 @@ class FuelLogSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, 'copy') else dict(data)
 
+        # Map mock vehicle IDs to DB primary keys
+        mock_id_to_reg = {
+            'veh-1': 'TRK-491-A',
+            'veh-2': 'VAN-102-X',
+            'veh-3': 'TRK-108-B',
+            'veh-4': 'TRK-552-C',
+            'veh-5': 'TRL-809-Y',
+            'veh-6': 'TRK-789-M',
+        }
+
+        from vehicles.models import Vehicle
+        vehicle_val = data.get('vehicleId') or data.get('vehicle')
+        if vehicle_val:
+            if isinstance(vehicle_val, str) and vehicle_val in mock_id_to_reg:
+                reg_num = mock_id_to_reg[vehicle_val]
+                try:
+                    vehicle_obj = Vehicle.objects.get(registration_number=reg_num)
+                    data['vehicle'] = vehicle_obj.id
+                except Vehicle.DoesNotExist:
+                    pass
+            elif str(vehicle_val).isdigit():
+                data['vehicle'] = int(vehicle_val)
+
         # Camel-case → snake_case field mapping
         if 'invoiceNumber' in data:
             data['invoice_number'] = data['invoiceNumber']
@@ -58,7 +81,16 @@ class FuelLogSerializer(serializers.ModelSerializer):
         ret['date'] = str(instance.date)
 
         # Vehicle details
-        ret['vehicleId'] = str(instance.vehicle_id)
+        reg_to_mock_id = {
+            'TRK-491-A': 'veh-1',
+            'VAN-102-X': 'veh-2',
+            'TRK-108-B': 'veh-3',
+            'TRK-552-C': 'veh-4',
+            'TRL-809-Y': 'veh-5',
+            'TRK-789-M': 'veh-6',
+        }
+        reg_num = instance.vehicle.registration_number
+        ret['vehicleId'] = reg_to_mock_id.get(reg_num, str(instance.vehicle_id))
         ret['vehicleRegistration'] = instance.vehicle.registration_number
         ret['vehicleName'] = instance.vehicle.vehicle_name
 
@@ -78,3 +110,4 @@ class FuelLogSerializer(serializers.ModelSerializer):
         ret['updatedAt'] = instance.updated_at.isoformat()
 
         return ret
+

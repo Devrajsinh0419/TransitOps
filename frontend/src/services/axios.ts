@@ -11,7 +11,7 @@ export const apiClient = axios.create({
   timeout: 10000, // 10 seconds timeout
 });
 
-// Request Interceptor: Attach JWT Bearer Token if it exists
+// Request Interceptor: Attach JWT Bearer Token and ensure trailing slashes for DRF viewsets
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (typeof window !== 'undefined') {
@@ -22,6 +22,24 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${cleanToken}`;
       }
     }
+
+    if (config.url) {
+      const parts = config.url.split('?');
+      let path = parts[0];
+      const listEndpoints = [
+        '/fuel-logs',
+        '/vehicles',
+        '/drivers',
+        '/trips',
+        '/expenses',
+        '/maintenance'
+      ];
+      if (listEndpoints.includes(path)) {
+        path += '/';
+      }
+      config.url = path + (parts[1] ? '?' + parts[1] : '');
+    }
+
     return config;
   },
   (error: AxiosError) => {
