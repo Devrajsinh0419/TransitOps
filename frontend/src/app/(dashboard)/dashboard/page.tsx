@@ -1,75 +1,148 @@
-import React from 'react';
-import { PageContainer } from '@/components/layouts/PageContainer';
-import { PageHeader } from '@/components/layouts/PageHeader';
-import { LayoutDashboard, FileText, Settings, Users, Compass, Truck } from 'lucide-react';
-import Link from 'next/link';
+'use client';
 
-export default function DashboardOverviewPage() {
+import React, { useEffect, useState } from 'react';
+import { PageContainer } from '@/components/layouts/PageContainer';
+import {
+  DashboardHeader,
+  WelcomeBanner,
+  DashboardStats,
+  DashboardFilters,
+  DashboardCharts,
+  TripsTable,
+  QuickActions,
+  FleetSummaryCard,
+  RecentActivity,
+  MaintenanceAlertCard,
+  LicenseAlertCard,
+  NotificationPanel,
+  DashboardSkeleton,
+} from '@/components/dashboard';
+import { useDashboard } from '@/hooks/useDashboard';
+import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useFleetOverview } from '@/hooks/useFleetOverview';
+import { uiStore } from '@/store/ui.store';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+
+export default function DashboardPage() {
+  const {
+    trips,
+    activities,
+    notifications,
+    chartData,
+    isLoading: mainLoading,
+    error: mainError,
+    refreshDashboard,
+    markAllNotificationsAsRead,
+    markNotificationAsRead,
+  } = useDashboard();
+
+  const { stats, isLoading: statsLoading, error: statsError } = useDashboardStats();
+  const { overview, isLoading: overviewLoading, error: overviewError } = useFleetOverview();
+
+  const [uiState, setUiState] = useState(uiStore.getState());
+  const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = uiStore.subscribe((state) => {
+      setUiState(state);
+    });
+    return unsubscribe;
+  }, []);
+
+  const isLoading = mainLoading || statsLoading || overviewLoading;
+  const error = mainError || statsError || overviewError;
+
+  const handleRetry = () => {
+    refreshDashboard();
+  };
+
+  // 1. Error state view
+  if (error) {
+    return (
+      <PageContainer className="flex-1 flex flex-col items-center justify-center py-16 text-center select-none">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 mb-4 animate-bounce">
+          <AlertCircle className="h-7 w-7" />
+        </div>
+        <h2 className="text-base font-bold text-foreground">Unable to Load Dashboard</h2>
+        <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-6 leading-relaxed">
+          The telemetry dispatcher could not sync status metrics. Please check network connection or try again.
+        </p>
+        <Button
+          variant="primary"
+          size="md"
+          onClick={handleRetry}
+          leftIcon={<RefreshCw className="h-4 w-4" />}
+          className="cursor-pointer font-bold"
+        >
+          Retry Connection
+        </Button>
+      </PageContainer>
+    );
+  }
+
+  // 2. Loading state view
+  if (isLoading) {
+    return (
+      <PageContainer className="space-y-6 py-6">
+        <div className="flex flex-col gap-1 pb-4 border-b border-border/60">
+          <div className="h-3 w-32 bg-muted rounded"></div>
+          <div className="h-6 w-52 bg-muted rounded mt-2"></div>
+        </div>
+        <DashboardSkeleton />
+      </PageContainer>
+    );
+  }
+
   return (
-    <PageContainer>
-      <PageHeader
-        title="Dashboard Hub"
-        description="System overview, active operations tracker, and analytical insights"
+    <PageContainer className="py-6 space-y-6">
+      {/* 1. Header component */}
+      <DashboardHeader
+        title="Fleet Operations Control"
+        subtitle="Real-time telemetry and dispatch logistics metrics"
+        onFilterToggle={() => setShowFilters(!showFilters)}
       />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Module overview blueprints */}
-        <div className="border border-border bg-card rounded-xl p-5 shadow-soft">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-              <Truck className="h-5 w-5" />
-            </div>
-            <h3 className="font-semibold text-foreground">Fleet Logistics</h3>
-          </div>
-          <p className="text-xs text-muted-foreground mb-4">
-            Manage vehicles, track odometer readings, monitor fuel logs, and inspect maintenance schedules.
-          </p>
-          <div className="text-[10px] font-mono text-muted-foreground bg-muted p-2 rounded-lg space-y-1">
-            <div>• Path: <Link href="/vehicles" className="text-primary hover:underline">/vehicles</Link>, <Link href="/fuel" className="text-primary hover:underline">/fuel</Link></div>
-            <div>• Service: <span className="text-foreground">vehicleService</span></div>
-          </div>
+      {/* 2. Collapsible filters panel */}
+      {showFilters && (
+        <DashboardFilters
+          onApplyFilters={(filters) => console.log('Applying Filters:', filters)}
+          onResetFilters={() => console.log('Filters reset')}
+        />
+      )}
+
+      {/* 3. Welcome banner */}
+      <WelcomeBanner />
+
+      {/* 4. KPI cards grid */}
+      <DashboardStats stats={stats} />
+
+      {/* 5. Main Dashboard Split Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column (Charts, Active Trips table) */}
+        <div className="lg:col-span-2 space-y-6">
+          <DashboardCharts chartData={chartData} />
+          <TripsTable trips={trips} />
         </div>
 
-        <div className="border border-border bg-card rounded-xl p-5 shadow-soft">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-              <Users className="h-5 w-5" />
-            </div>
-            <h3 className="font-semibold text-foreground">Human Resources</h3>
-          </div>
-          <p className="text-xs text-muted-foreground mb-4">
-            Oversee drivers, duty statuses, license expiration alerts, and assign vehicles.
-          </p>
-          <div className="text-[10px] font-mono text-muted-foreground bg-muted p-2 rounded-lg space-y-1">
-            <div>• Path: <Link href="/drivers" className="text-primary hover:underline">/drivers</Link></div>
-            <div>• Service: <span className="text-foreground">driverService</span></div>
-          </div>
-        </div>
-
-        <div className="border border-border bg-card rounded-xl p-5 shadow-soft">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-              <Compass className="h-5 w-5" />
-            </div>
-            <h3 className="font-semibold text-foreground">Dispatch & Trips</h3>
-          </div>
-          <p className="text-xs text-muted-foreground mb-4">
-            Track route progress, origin-destination details, departure timings, and statuses.
-          </p>
-          <div className="text-[10px] font-mono text-muted-foreground bg-muted p-2 rounded-lg space-y-1">
-            <div>• Path: <Link href="/trips" className="text-primary hover:underline">/trips</Link></div>
-            <div>• Service: <span className="text-foreground">tripService</span></div>
-          </div>
+        {/* Right Column (Quick Actions, Warnings, Summaries, Logs) */}
+        <div className="space-y-6">
+          <QuickActions />
+          <FleetSummaryCard summary={overview} />
+          <MaintenanceAlertCard />
+          <LicenseAlertCard />
+          <RecentActivity activities={activities} />
         </div>
       </div>
 
-      <div className="mt-8 border border-dashed border-border bg-card/45 rounded-xl p-6 text-center max-w-xl mx-auto">
-        <LayoutDashboard className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-        <h4 className="font-medium text-foreground text-sm">Dashboard Architectural Blueprint</h4>
-        <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-          Use TanStack Query to fetch aggregate metrics for these modules. Connect to the dashboard API endpoints in Step 2.
-        </p>
-      </div>
+      {/* 6. Slide-out Notifications Drawer */}
+      <NotificationPanel
+        isOpen={uiState.notificationsOpen}
+        onClose={() => uiStore.setNotificationsOpen(false)}
+        notifications={notifications}
+        onMarkAllAsRead={markAllNotificationsAsRead}
+        onMarkAsRead={markNotificationAsRead}
+      />
     </PageContainer>
   );
 }

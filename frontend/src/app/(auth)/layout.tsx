@@ -1,4 +1,5 @@
 import React from 'react';
+import { AuthIllustration } from '@/components/auth/AuthIllustration';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -6,13 +7,19 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4 sm:p-6 lg:p-8 relative overflow-hidden">
-      {/* Decorative premium background elements */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[60%] rounded-full bg-zinc-200/40 dark:bg-zinc-900/40 blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[60%] rounded-full bg-zinc-200/40 dark:bg-zinc-900/40 blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen w-full flex bg-background relative overflow-hidden">
+      {/* Left side: Brand Illustration (45% width on large screens, hidden on mobile/tablet) */}
+      <div className="hidden lg:block lg:w-[45%] border-r border-border/80 h-screen sticky top-0">
+        <AuthIllustration />
+      </div>
 
-      <div className="w-full max-w-md relative z-10 animate-scale-in">
-        <div className="bg-card border border-border shadow-premium rounded-2xl p-6 sm:p-8">
+      {/* Right side: Authentication forms viewport (55% width on large screens, full width on smaller screens) */}
+      <div className="w-full lg:w-[55%] min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-10 bg-zinc-50/50 dark:bg-zinc-950/20 relative">
+        {/* Glow backdrop circles */}
+        <div className="absolute top-0 right-0 w-[40vw] h-[40vh] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[40vw] h-[40vh] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
+
+        <div className="w-full max-w-[420px] relative z-10">
           {children}
         </div>
       </div>

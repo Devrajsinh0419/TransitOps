@@ -5,44 +5,54 @@ import { MaintenanceStatus } from '@/types/maintenance';
 import { ExpenseStatus } from '@/types/expense';
 
 export const VEHICLE_STATUSES: Record<string, VehicleStatus> = {
-  ACTIVE: 'active',
-  IN_SERVICE: 'in_service',
+  AVAILABLE: 'available',
+  ON_TRIP: 'on_trip',
   MAINTENANCE: 'maintenance',
-  OUT_OF_SERVICE: 'out_of_service',
+  RETIRED: 'retired',
+  INACTIVE: 'inactive',
+  DISPOSED: 'disposed',
 };
 
 export const VEHICLE_STATUS_LABELS: Record<VehicleStatus, string> = {
-  active: 'Active',
-  in_service: 'In Service',
+  available: 'Available',
+  on_trip: 'On Trip',
   maintenance: 'Maintenance',
-  out_of_service: 'Out of Service',
+  retired: 'Retired',
+  inactive: 'Inactive',
+  disposed: 'Disposed',
 };
 
 export const DRIVER_STATUSES: Record<string, DriverStatus> = {
-  ACTIVE: 'active',
+  AVAILABLE: 'available',
   ON_TRIP: 'on_trip',
   OFF_DUTY: 'off_duty',
   SUSPENDED: 'suspended',
+  LEAVE: 'leave',
+  INACTIVE: 'inactive',
 };
 
 export const DRIVER_STATUS_LABELS: Record<DriverStatus, string> = {
-  active: 'Active',
+  available: 'Available',
   on_trip: 'On Trip',
   off_duty: 'Off Duty',
   suspended: 'Suspended',
+  leave: 'On Leave',
+  inactive: 'Inactive',
 };
 
 export const TRIP_STATUSES: Record<string, TripStatus> = {
-  SCHEDULED: 'scheduled',
-  IN_TRANSIT: 'in_transit',
+  DRAFT: 'draft',
+  DISPATCHED: 'dispatched',
+  IN_TRANSIT: 'in_progress',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
   DELAYED: 'delayed',
 };
 
 export const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
-  scheduled: 'Scheduled',
-  in_transit: 'In Transit',
+  draft: 'Draft',
+  dispatched: 'Dispatched',
+  in_progress: 'In Progress',
   completed: 'Completed',
   cancelled: 'Cancelled',
   delayed: 'Delayed',

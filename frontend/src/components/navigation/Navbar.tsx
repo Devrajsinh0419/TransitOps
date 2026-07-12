@@ -63,6 +63,7 @@ export function Navbar() {
 
         {/* Notifications Icon */}
         <button
+          onClick={() => uiStore.toggleNotifications()}
           className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           aria-label="View notifications"
         >

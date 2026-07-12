@@ -22,3 +22,14 @@ export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface AuthState extends AuthSession {
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface AuthErrorResponse {
+  message: string;
+  code?: string;
+  errors?: Record<string, string[]>;
+}

@@ -1,5 +1,6 @@
 export interface UiState {
   sidebarOpen: boolean;
+  notificationsOpen: boolean;
   activeDialog: string | null;
 }
 
@@ -8,6 +9,7 @@ type Listener = (state: UiState) => void;
 class UiStore {
   private state: UiState = {
     sidebarOpen: true, // Default open on desktop
+    notificationsOpen: false,
     activeDialog: null,
   };
 
@@ -28,6 +30,14 @@ class UiStore {
 
   setSidebarOpen(open: boolean): void {
     this.setState({ sidebarOpen: open });
+  }
+
+  toggleNotifications(): void {
+    this.setState({ notificationsOpen: !this.state.notificationsOpen });
+  }
+
+  setNotificationsOpen(open: boolean): void {
+    this.setState({ notificationsOpen: open });
   }
 
   openDialog(dialogId: string): void {

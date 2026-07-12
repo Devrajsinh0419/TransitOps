@@ -1,77 +1,187 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { PageContainer } from '@/components/layouts/PageContainer';
-import { PageHeader } from '@/components/layouts/PageHeader';
-import { Users, Plus, RefreshCw } from 'lucide-react';
+import { useDrivers } from '@/hooks/useDrivers';
+import { useDeleteDriver } from '@/hooks/useDeleteDriver';
+import {
+  DriverHeader,
+  DriverStats,
+  DriverToolbar,
+  DriverTable,
+  DriverCard,
+  DriverPagination,
+  DriverSkeleton,
+} from '@/components/drivers';
+import { EmptyState } from '@/components/empty-state/EmptyState';
+import { AlertCircle } from 'lucide-react';
+import { ConfirmationDialog, DeleteDialog } from '@/components/dialogs';
 
 export default function DriversPage() {
+  const {
+    drivers,
+    filters,
+    setFilters,
+    isLoading,
+    refetch,
+    totalCount,
+    suspendDriver,
+    activateDriver,
+  } = useDrivers();
+
+  const { deleteDriver, isLoading: isDeleteLoading } = useDeleteDriver();
+
+  // Dialog actions states
+  const [suspendTargetId, setSuspendTargetId] = useState<string | null>(null);
+  const [activateTargetId, setActivateTargetId] = useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  
+  const [isActionPending, setIsActionPending] = useState(false);
+
+  const activeSuspendTargetName = drivers.find((d) => d.id === suspendTargetId)?.name || '';
+  const activeActivateTargetName = drivers.find((d) => d.id === activateTargetId)?.name || '';
+  const activeDeleteTargetName = drivers.find((d) => d.id === deleteTargetId)?.name || '';
+
+  const handleConfirmSuspend = async () => {
+    if (!suspendTargetId) return;
+    setIsActionPending(true);
+    await suspendDriver(suspendTargetId);
+    setIsActionPending(false);
+    setSuspendTargetId(null);
+  };
+
+  const handleConfirmActivate = async () => {
+    if (!activateTargetId) return;
+    setIsActionPending(true);
+    await activateDriver(activateTargetId);
+    setIsActionPending(false);
+    setActivateTargetId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetId) return;
+    setIsActionPending(true);
+    await deleteDriver(deleteTargetId);
+    setIsActionPending(false);
+    setDeleteTargetId(null);
+  };
+
+  const handlePaginationChange = (updates: { page: number; limit: number }) => {
+    setFilters({
+      ...filters,
+      ...updates,
+    });
+  };
+
+  // Paginated list slice (simulated)
+  const paginatedDrivers = drivers.slice((filters.page - 1) * filters.limit, filters.page * filters.limit);
+
   return (
-    <PageContainer>
-      <PageHeader
-        title="Drivers Roster"
-        description="Oversee operator license validity, status, ratings, and vehicle pairings"
-      >
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer">
-          <RefreshCw className="h-3.5 w-3.5" />
-          Sync
-        </button>
-        <button className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer">
-          <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
-          Hire Driver
-        </button>
-      </PageHeader>
+    <PageContainer className="space-y-6">
+      {/* Header */}
+      <DriverHeader
+        title="Drivers Directory"
+        subtitle="Manage fleet operators, monitor licensing compliance and track driver performance safety"
+        showCreateButton
+      />
 
-      <div className="border border-border bg-card rounded-2xl p-6 shadow-soft max-w-3xl mx-auto">
-        <div className="flex items-center gap-3 pb-4 border-b border-border/60 mb-5">
-          <Users className="h-6 w-6 text-primary" />
-          <div>
-            <h3 className="font-semibold text-foreground text-base">Drivers Module Architecture</h3>
-            <p className="text-xs text-muted-foreground">Boilerplate configuration and interfaces for this module</p>
+      {/* Stats bar */}
+      <DriverStats drivers={drivers} />
+
+      {/* Toolbar & Filters */}
+      <DriverToolbar
+        filters={filters}
+        onChange={setFilters}
+        onRefresh={refetch}
+      />
+
+      {/* Data display grid */}
+      {isLoading ? (
+        <div className="space-y-6">
+          <div className="hidden md:block">
+            <DriverSkeleton.Table />
+          </div>
+          <div className="block md:hidden">
+            <DriverSkeleton.Card />
           </div>
         </div>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Service Operations</h4>
-              <div className="font-mono text-[10px] text-muted-foreground bg-muted p-2.5 rounded-lg space-y-1.5">
-                <div>• driverService.getAll(params)</div>
-                <div>• driverService.getById(id)</div>
-                <div>• driverService.create(data)</div>
-                <div>• driverService.update(id, data)</div>
-                <div>• driverService.delete(id)</div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">TypeScript Interfaces</h4>
-              <div className="font-mono text-[10px] text-muted-foreground bg-muted p-2.5 rounded-lg space-y-1.5">
-                <div>• Type: <span className="text-foreground">Driver</span></div>
-                <div>• Status: <span className="text-foreground">DriverStatus</span></div>
-              </div>
-            </div>
+      ) : paginatedDrivers.length === 0 ? (
+        <EmptyState
+          title="No drivers found"
+          description={
+            filters.search
+              ? `No drivers match the keyword "${filters.search}". Try refining your search queries.`
+              : 'Get started by onboarding and registering your first driver on TransitOps.'
+          }
+          icon={AlertCircle}
+        />
+      ) : (
+        <div className="space-y-4">
+          {/* Desktop Table View */}
+          <div className="hidden md:block">
+            <DriverTable
+              drivers={paginatedDrivers}
+              onSuspend={(id) => setSuspendTargetId(id)}
+              onActivate={(id) => setActivateTargetId(id)}
+              onDelete={(id) => setDeleteTargetId(id)}
+            />
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2">Target Hooks</h4>
-              <div className="font-mono text-[10px] text-muted-foreground bg-muted p-2.5 rounded-lg space-y-1.5">
-                <div>• usePagination (table pagination state)</div>
-                <div>• useDebounce (searching filter inputs)</div>
-                <div>• useQuery (TanStack state manager)</div>
-              </div>
-            </div>
-
-            <div className="border border-dashed border-border rounded-xl p-4 flex flex-col justify-center items-center text-center">
-              <span className="text-[10px] font-semibold text-primary uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-full mb-2">
-                Ready for Step 2
-              </span>
-              <p className="text-[11px] text-muted-foreground">
-                Import components like Tables, Badges, SearchInput and connect TanStack Query.
-              </p>
-            </div>
+          {/* Mobile Card Grid View */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
+            {paginatedDrivers.map((driver) => (
+              <DriverCard
+                key={driver.id}
+                driver={driver}
+                onSuspend={() => setSuspendTargetId(driver.id)}
+                onActivate={() => setActivateTargetId(driver.id)}
+                onDelete={() => setDeleteTargetId(driver.id)}
+              />
+            ))}
           </div>
+
+          {/* Pagination */}
+          <DriverPagination
+            page={filters.page}
+            limit={filters.limit}
+            totalCount={drivers.length}
+            onChange={handlePaginationChange}
+          />
         </div>
-      </div>
+      )}
+
+      {/* Suspend Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={!!suspendTargetId}
+        onClose={() => setSuspendTargetId(null)}
+        onConfirm={handleConfirmSuspend}
+        title="Suspend Driver Profile?"
+        message={`Are you sure you want to suspend ${activeSuspendTargetName}? This will block this operator from receiving active dispatch assignments.`}
+        confirmText="Suspend"
+        isLoading={isActionPending}
+      />
+
+      {/* Activate Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={!!activateTargetId}
+        onClose={() => setActivateTargetId(null)}
+        onConfirm={handleConfirmActivate}
+        title="Activate Driver Profile?"
+        message={`Activate driver ${activeActivateTargetName} and set availability state to active?`}
+        confirmText="Activate"
+        isLoading={isActionPending}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteDialog
+        isOpen={!!deleteTargetId}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Remove Driver Profile"
+        message={`Are you sure you want to remove ${activeDeleteTargetName} from TransitOps? This will permanently delete all records.`}
+        confirmText="Delete"
+        isLoading={isActionPending}
+      />
     </PageContainer>
   );
 }

@@ -1,5 +1,6 @@
 export * from './axios';
 export * from './auth.service';
+export * from './dashboard.service';
 export * from './vehicle.service';
 export * from './driver.service';
 export * from './trip.service';

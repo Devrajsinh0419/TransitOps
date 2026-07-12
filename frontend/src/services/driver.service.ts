@@ -3,28 +3,39 @@ import { Driver } from '@/types/driver';
 import { PaginatedResponse, QueryParams } from '@/types/common';
 
 export const driverService = {
-  getAll: async (params?: QueryParams): Promise<PaginatedResponse<Driver>> => {
+  getDrivers: async (params?: QueryParams): Promise<PaginatedResponse<Driver>> => {
     const response = await apiClient.get<PaginatedResponse<Driver>>('/drivers', { params });
     return response.data;
   },
 
-  getById: async (id: string): Promise<Driver> => {
+  getDriver: async (id: string): Promise<Driver> => {
     const response = await apiClient.get<Driver>(`/drivers/${id}`);
     return response.data;
   },
 
-  create: async (data: Partial<Driver>): Promise<Driver> => {
+  createDriver: async (data: Partial<Driver>): Promise<Driver> => {
     const response = await apiClient.post<Driver>('/drivers', data);
     return response.data;
   },
 
-  update: async (id: string, data: Partial<Driver>): Promise<Driver> => {
+  updateDriver: async (id: string, data: Partial<Driver>): Promise<Driver> => {
     const response = await apiClient.patch<Driver>(`/drivers/${id}`, data);
     return response.data;
   },
 
-  delete: async (id: string): Promise<void> => {
+  deleteDriver: async (id: string): Promise<void> => {
     await apiClient.delete(`/drivers/${id}`);
   },
+
+  suspendDriver: async (id: string): Promise<Driver> => {
+    const response = await apiClient.post<Driver>(`/drivers/${id}/suspend`);
+    return response.data;
+  },
+
+  activateDriver: async (id: string): Promise<Driver> => {
+    const response = await apiClient.post<Driver>(`/drivers/${id}/activate`);
+    return response.data;
+  },
 };
+
 export default driverService;
