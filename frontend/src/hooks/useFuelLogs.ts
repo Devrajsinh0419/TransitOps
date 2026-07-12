@@ -29,13 +29,14 @@ export function useFuelLogs() {
     setError(null);
     try {
       const response = await fuelService.getFuelLogs(filters);
-      const logs: FuelLog[] = response.data || [];
+      // DRF DefaultRouter returns { count, next, previous, results }
+      const logs: FuelLog[] = (response as any).results ?? (response as any).data ?? [];
       setFuelLogs(logs);
 
-      const totalCost = logs.reduce((sum: number, item: FuelLog) => sum + (item.totalCost || 0), 0);
-      const totalLiters = logs.reduce((sum: number, item: FuelLog) => sum + (item.quantity || 0), 0);
-      const averageMileage = totalLiters > 0 ? parseFloat((670 / totalLiters).toFixed(2)) : 0;
-      const averageFuelCost = logs.length > 0 ? parseFloat((totalCost / totalLiters).toFixed(2)) : 0;
+      const totalCost = logs.reduce((sum, item) => sum + (Number(item.totalCost) || 0), 0);
+      const totalLiters = logs.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+      const averageFuelCost = totalLiters > 0 ? parseFloat((totalCost / totalLiters).toFixed(2)) : 0;
+      const averageMileage = 0; // requires odometer delta — not available per-log
 
       setSummary({
         totalCost: parseFloat(totalCost.toFixed(2)),
@@ -44,8 +45,9 @@ export function useFuelLogs() {
         averageFuelCost,
       });
     } catch (e: any) {
-      setError('Failed to fetch fuel logs');
-      toast.error('Sync Error', { description: 'Could not fetch fuel transaction logs.' });
+      const detail = e?.response?.data?.detail || 'Could not fetch fuel transaction logs.';
+      setError(detail);
+      toast.error('Sync Error', { description: detail });
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AppProvider } from '@/providers/AppProvider';
+import { APPEARANCE_INIT_SCRIPT } from '@/lib/appearance';
 import './globals.css';
 
 const geistSans = Geist({
@@ -30,6 +31,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <script dangerouslySetInnerHTML={{ __html: APPEARANCE_INIT_SCRIPT }} />
         <AppProvider>
           {children}
         </AppProvider>

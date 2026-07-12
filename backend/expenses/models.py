@@ -28,6 +28,8 @@ class Expense(models.Model):
     )
     receipt = models.FileField(upload_to='receipts/', null=True, blank=True)
     invoice_number = models.CharField(max_length=100, blank=True, default="")
+    vendor = models.CharField(max_length=200, blank=True, default="")
+    payment_method = models.CharField(max_length=100, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

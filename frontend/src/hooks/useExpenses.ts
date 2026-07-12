@@ -29,22 +29,27 @@ export function useExpenses() {
     setError(null);
     try {
       const response = await expenseService.getExpenses(filters);
-      const records: ExpenseRecord[] = response.data || [];
+      // DRF DefaultRouter returns { count, next, previous, results }
+      const records: ExpenseRecord[] = (response as any).results ?? (response as any).data ?? [];
       setExpenses(records);
 
       const monthlyTotal = records
-        .filter((e: ExpenseRecord) => e.status === 'approved')
-        .reduce((sum: number, item: ExpenseRecord) => sum + (item.amount || 0), 0);
+        .filter((e) => (e.status as string) === 'approved' || (e.status as string) === 'Approved')
+        .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
+      const today = new Date().toISOString().split('T')[0];
       const todayTotal = records
-        .filter((e: ExpenseRecord) => e.date === new Date().toISOString().split('T')[0] && e.status === 'approved')
-        .reduce((sum: number, item: ExpenseRecord) => sum + (item.amount || 0), 0);
+        .filter(
+          (e) =>
+            e.date === today &&
+            ((e.status as string) === 'approved' || (e.status as string) === 'Approved')
+        )
+        .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
       const categoryCounts: Record<string, number> = {};
-      records.forEach((item: ExpenseRecord) => {
-        if (item.status === 'approved') {
-          categoryCounts[item.expenseType] = (categoryCounts[item.expenseType] || 0) + (item.amount || 0);
-        }
+      records.forEach((item) => {
+        const cat = item.expenseType || 'miscellaneous';
+        categoryCounts[cat] = (categoryCounts[cat] || 0) + (Number(item.amount) || 0);
       });
       let topCategory = 'Miscellaneous';
       let maxAmount = 0;
@@ -64,8 +69,9 @@ export function useExpenses() {
         averageDailyCost: averageDaily,
       });
     } catch (e: any) {
-      setError('Failed to fetch expenses');
-      toast.error('Sync Error', { description: 'Could not fetch expense ledger.' });
+      const detail = e?.response?.data?.detail || 'Could not fetch expense ledger.';
+      setError(detail);
+      toast.error('Sync Error', { description: detail });
     } finally {
       setIsLoading(false);
     }

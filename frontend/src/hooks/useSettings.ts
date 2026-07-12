@@ -3,13 +3,8 @@
 import { useState, useEffect } from 'react';
 import { AppearanceSettings, FleetSettings, SecuritySettings } from '@/types/settings';
 import { toast } from 'sonner';
-
-const DEFAULT_APPEARANCE: AppearanceSettings = {
-  theme: 'light',
-  sidebarMode: 'expanded',
-  colorAccent: '#6366f1',
-  fontSize: 'medium',
-};
+import { useTheme } from './useTheme';
+import { DEFAULT_APPEARANCE, loadAppearance, persistAppearance } from '@/lib/appearance';
 
 const DEFAULT_FLEET: FleetSettings = {
   vehicleTypes: ['Heavy Truck', 'Delivery Van', 'Trailer', 'Refrigerated Truck'],
@@ -28,8 +23,6 @@ const DEFAULT_SECURITY: SecuritySettings = {
   sessionTimeoutMinutes: 30,
 };
 
-import { useTheme } from './useTheme';
-
 export function useSettings() {
   const [appearance, setAppearance] = useState<AppearanceSettings>(DEFAULT_APPEARANCE);
   const [fleet, setFleet] = useState<FleetSettings>(DEFAULT_FLEET);
@@ -39,8 +32,7 @@ export function useSettings() {
 
   useEffect(() => {
     const loadSettings = () => {
-      const savedApp = localStorage.getItem('transitops_appearance');
-      if (savedApp) setAppearance(JSON.parse(savedApp));
+      setAppearance(loadAppearance());
     };
 
     loadSettings();
@@ -59,12 +51,8 @@ export function useSettings() {
   const updateAppearance = async (data: Partial<AppearanceSettings>): Promise<boolean> => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 400));
-    const updated = { ...appearance, ...data };
+    const updated = persistAppearance(data, setTheme);
     setAppearance(updated);
-    localStorage.setItem('transitops_appearance', JSON.stringify(updated));
-    if (data.theme) {
-      setTheme(data.theme);
-    }
     toast.success('Visual configurations updated');
     setIsLoading(false);
     return true;

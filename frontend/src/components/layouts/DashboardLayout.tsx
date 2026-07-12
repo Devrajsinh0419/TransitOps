@@ -19,7 +19,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return unsubscribe;
   }, []);
 
-  const isCollapsed = !uiState.sidebarOpen;
+  const forceIconOnly = uiState.sidebarMode === 'collapsed';
+  const isCollapsed = forceIconOnly || !uiState.sidebarOpen;
+  const isCompact = uiState.sidebarMode === 'compact' && !isCollapsed;
+  const contentPadding = isCollapsed ? 'pl-18' : isCompact ? 'pl-0 lg:pl-48' : 'pl-0 lg:pl-64';
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-250">
@@ -28,9 +31,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       
       {/* Main Workspace Frame */}
       <div
-        className={`flex flex-col min-h-screen transition-all duration-300 ${
-          isCollapsed ? 'pl-18' : 'pl-0 lg:pl-64'
-        }`}
+        className={`flex flex-col min-h-screen transition-all duration-300 ${contentPadding}`}
       >
         {/* Top Header Controls */}
         <Navbar />

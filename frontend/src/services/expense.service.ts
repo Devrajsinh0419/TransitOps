@@ -1,10 +1,9 @@
 import apiClient from './axios';
 import { ExpenseRecord, ExpenseFilters } from '@/types/expense';
-import { PaginatedResponse } from '@/types/common';
 
 export const expenseService = {
-  getExpenses: async (params?: ExpenseFilters): Promise<PaginatedResponse<ExpenseRecord>> => {
-    const response = await apiClient.get<PaginatedResponse<ExpenseRecord>>('/expenses', { params });
+  getExpenses: async (params?: Partial<ExpenseFilters>): Promise<{ results: ExpenseRecord[]; count: number }> => {
+    const response = await apiClient.get('/expenses', { params });
     return response.data;
   },
 
@@ -13,22 +12,18 @@ export const expenseService = {
     return response.data;
   },
 
-  createExpense: async (data: Partial<ExpenseRecord>): Promise<ExpenseRecord> => {
-    // If data contains a File object for receipt, send as multipart;
-    // otherwise send as JSON (pre-uploaded URL in attachmentUrl field).
-    const response = await apiClient.post<ExpenseRecord>('/expenses/', data, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+  createExpense: async (data: Record<string, any>): Promise<ExpenseRecord> => {
+    const response = await apiClient.post<ExpenseRecord>('/expenses', data);
     return response.data;
   },
 
-  updateExpense: async (id: string, data: Partial<ExpenseRecord>): Promise<ExpenseRecord> => {
-    const response = await apiClient.patch<ExpenseRecord>(`/expenses/${id}/`, data);
+  updateExpense: async (id: string, data: Record<string, any>): Promise<ExpenseRecord> => {
+    const response = await apiClient.patch<ExpenseRecord>(`/expenses/${id}`, data);
     return response.data;
   },
 
   deleteExpense: async (id: string): Promise<void> => {
-    await apiClient.delete(`/expenses/${id}/`);
+    await apiClient.delete(`/expenses/${id}`);
   },
 };
 

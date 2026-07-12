@@ -32,13 +32,14 @@ export function Sidebar() {
     router.push('/login');
   };
 
-  const isCollapsed = !uiState.sidebarOpen;
+  const forceIconOnly = uiState.sidebarMode === 'collapsed';
+  const isCollapsed = forceIconOnly || !uiState.sidebarOpen;
+  const isCompact = uiState.sidebarMode === 'compact' && !isCollapsed;
+  const sidebarWidth = isCollapsed ? 'w-18' : isCompact ? 'w-48' : 'w-64';
 
   return (
     <aside
-      className={`fixed top-0 bottom-0 left-0 z-20 flex flex-col border-r border-border bg-card/85 backdrop-blur-md transition-all duration-300 ${
-        isCollapsed ? 'w-18' : 'w-64'
-      }`}
+      className={`fixed top-0 bottom-0 left-0 z-20 flex flex-col border-r border-border bg-card/85 backdrop-blur-md transition-all duration-300 ${sidebarWidth}`}
     >
       {/* Header / Logo */}
       <div className="flex h-16 items-center justify-between px-4 border-b border-border/60">
@@ -64,7 +65,9 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative ${
+              className={`flex items-center gap-3 rounded-lg font-medium transition-all group relative ${
+                isCompact ? 'px-2 py-2 text-xs gap-2' : 'px-3 py-2.5 text-sm gap-3'
+              } ${
                 active
                   ? 'bg-primary text-primary-foreground shadow-soft'
                   : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'

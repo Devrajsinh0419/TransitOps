@@ -1,5 +1,8 @@
+export type SidebarMode = 'expanded' | 'collapsed' | 'compact';
+
 export interface UiState {
   sidebarOpen: boolean;
+  sidebarMode: SidebarMode;
   notificationsOpen: boolean;
   activeDialog: string | null;
 }
@@ -8,7 +11,8 @@ type Listener = (state: UiState) => void;
 
 class UiStore {
   private state: UiState = {
-    sidebarOpen: true, // Default open on desktop
+    sidebarOpen: true,
+    sidebarMode: 'expanded',
     notificationsOpen: false,
     activeDialog: null,
   };
@@ -30,6 +34,13 @@ class UiStore {
 
   setSidebarOpen(open: boolean): void {
     this.setState({ sidebarOpen: open });
+  }
+
+  setSidebarMode(mode: SidebarMode): void {
+    this.setState({
+      sidebarMode: mode,
+      sidebarOpen: mode !== 'collapsed',
+    });
   }
 
   toggleNotifications(): void {

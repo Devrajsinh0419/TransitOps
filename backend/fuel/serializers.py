@@ -1,34 +1,18 @@
 from rest_framework import serializers
 from .models import FuelLog
-from vehicles.serializers import VehicleSerializer
 from django.conf import settings
 
 
 class FuelLogSerializer(serializers.ModelSerializer):
-    vehicle_detail = VehicleSerializer(source='vehicle', read_only=True)
-
-    invoiceNumber = serializers.CharField(source='invoice_number', required=False, allow_blank=True)
-    fuelType = serializers.CharField(source='fuel_type', required=False, allow_blank=True)
-    fuelStation = serializers.CharField(source='fuel_station', required=False, allow_blank=True)
-    quantity = serializers.DecimalField(source='liters', max_digits=10, decimal_places=2)
-    totalCost = serializers.DecimalField(source='cost', max_digits=12, decimal_places=2)
-    attachmentUrl = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = FuelLog
         fields = '__all__'
 
-    def get_attachmentUrl(self, obj):
-        if obj.receipt:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.receipt.url)
-            return obj.receipt.url
-        return None
-
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, 'copy') else dict(data)
 
+        # Camel-case → snake_case field mapping
         if 'invoiceNumber' in data:
             data['invoice_number'] = data['invoiceNumber']
         if 'fuelType' in data:
@@ -40,11 +24,10 @@ class FuelLogSerializer(serializers.ModelSerializer):
         if 'totalCost' in data:
             data['cost'] = data['totalCost']
 
-        # Handle attachment URL (pre-upload flow): strip to relative media path.
-        # Real file objects (multipart) pass through untouched.
+        # Handle attachment URL (pre-upload flow)
         attachment = data.get('attachmentUrl') or data.get('receipt')
         if attachment and isinstance(attachment, str):
-            media_url = settings.MEDIA_URL  # e.g. "/media/"
+            media_url = settings.MEDIA_URL
             relative_path = attachment
             if '://' in relative_path:
                 try:
@@ -61,14 +44,37 @@ class FuelLogSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
+
+        # Emit the camelCase / frontend-expected field names
+        ret['id'] = str(instance.id)
+        ret['fuelLogId'] = f"FUL-{instance.id:04d}" if isinstance(instance.id, int) else f"FUL-{instance.id}"
         ret['invoiceNumber'] = instance.invoice_number
         ret['fuelType'] = instance.fuel_type
-        ret['fuelStation'] = instance.fuel_station
+        ret['fuelStation'] = instance.fuel_station or ''
         ret['quantity'] = float(instance.liters)
         ret['totalCost'] = float(instance.cost)
-        ret['attachmentUrl'] = self.get_attachmentUrl(instance)
-        ret['vehicleId'] = instance.vehicle_id
+        ret['pricePerLiter'] = float(instance.cost / instance.liters) if instance.liters > 0 else 0
+        ret['odometer'] = instance.odometer
+        ret['date'] = str(instance.date)
+
+        # Vehicle details
+        ret['vehicleId'] = str(instance.vehicle_id)
         ret['vehicleRegistration'] = instance.vehicle.registration_number
         ret['vehicleName'] = instance.vehicle.vehicle_name
-        ret['pricePerLiter'] = float(instance.cost / instance.liters) if instance.liters > 0 else 0
+
+        # Driver — FuelLog has no FK to driver; return empty strings safely
+        ret['driverId'] = ''
+        ret['driverName'] = ''
+
+        # Attachment URL
+        if instance.receipt:
+            request = self.context.get('request')
+            ret['attachmentUrl'] = request.build_absolute_uri(instance.receipt.url) if request else instance.receipt.url
+        else:
+            ret['attachmentUrl'] = None
+
+        # Timestamps
+        ret['createdAt'] = instance.created_at.isoformat()
+        ret['updatedAt'] = instance.updated_at.isoformat()
+
         return ret
