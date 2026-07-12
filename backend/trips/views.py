@@ -30,3 +30,28 @@ class TripViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(dispatch_date__date__gte=date_from)
             
         return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        from rest_framework import status
+        from rest_framework.response import Response
+        from django.db import transaction
+        from vehicles.models import Vehicle
+        from drivers.models import Driver
+
+        instance = self.get_object()
+        with transaction.atomic():
+            instance.status = Trip.Status.CANCELLED
+            instance.save()
+            
+            vehicle = instance.vehicle
+            driver = instance.driver
+            if vehicle:
+                vehicle.status = Vehicle.Status.AVAILABLE
+                vehicle.save()
+            if driver:
+                driver.status = Driver.Status.AVAILABLE
+                driver.save()
+                
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
