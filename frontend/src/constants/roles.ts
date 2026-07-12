@@ -7,6 +7,8 @@ export const ROLES: Record<string, UserRole> = {
   DISPATCHER: 'dispatcher',
   DRIVER: 'driver',
   VIEWER: 'viewer',
+  SAFETY_OFFICER: 'safety_officer',
+  FINANCIAL_ANALYST: 'financial_analyst',
 };
 
 export const ROLE_LABELS: Record<UserRole, string> = {
@@ -16,4 +18,6 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   dispatcher: 'Dispatcher',
   driver: 'Driver',
   viewer: 'Viewer / Read-Only',
+  safety_officer: 'Safety Officer',
+  financial_analyst: 'Financial Analyst',
 };

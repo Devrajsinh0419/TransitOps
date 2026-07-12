@@ -7,3 +7,4 @@ django-cors-headers
 gunicorn
 whitenoise
 Pillow
+python-decouple

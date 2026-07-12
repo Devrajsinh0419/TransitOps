@@ -18,14 +18,21 @@ class AuthStore {
   constructor() {
     if (typeof window !== 'undefined') {
       try {
-        const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
-        const storedToken = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-        const storedRefresh = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+        const useDemo = process.env.NEXT_PUBLIC_USE_DEMO_AUTH === 'true';
+        const storedUser = useDemo
+          ? localStorage.getItem('user')
+          : localStorage.getItem(STORAGE_KEYS.USER);
+        const storedToken = useDemo
+          ? localStorage.getItem('accessToken')
+          : localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+        const storedRefresh = useDemo
+          ? localStorage.getItem('refreshToken')
+          : localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
 
         this.state = {
           user: storedUser ? JSON.parse(storedUser) : null,
-          accessToken: storedToken ? JSON.parse(storedToken) : null,
-          refreshToken: storedRefresh ? JSON.parse(storedRefresh) : null,
+          accessToken: storedToken ? storedToken.replace(/^"(.*)"$/, '$1') : null,
+          refreshToken: storedRefresh ? storedRefresh.replace(/^"(.*)"$/, '$1') : null,
           isAuthenticated: !!storedToken,
           isLoading: false,
           error: null,
@@ -55,9 +62,18 @@ class AuthStore {
 
   setUser(user: User | null): void {
     if (typeof window !== 'undefined') {
+      const useDemo = process.env.NEXT_PUBLIC_USE_DEMO_AUTH === 'true';
       if (user) {
+        if (useDemo) {
+          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('role', user.role);
+        }
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
       } else {
+        if (useDemo) {
+          localStorage.removeItem('user');
+          localStorage.removeItem('role');
+        }
         localStorage.removeItem(STORAGE_KEYS.USER);
       }
     }
@@ -66,6 +82,14 @@ class AuthStore {
 
   setSession(user: User, accessToken: string, refreshToken: string): void {
     if (typeof window !== 'undefined') {
+      const useDemo = process.env.NEXT_PUBLIC_USE_DEMO_AUTH === 'true';
+      if (useDemo) {
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('role', user.role);
+        localStorage.setItem('expiresAt', String(Date.now() + 60 * 60 * 24 * 7 * 1000));
+      }
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
       localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, JSON.stringify(accessToken));
       localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, JSON.stringify(refreshToken));
@@ -87,6 +111,12 @@ class AuthStore {
       localStorage.removeItem(STORAGE_KEYS.USER);
       localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
       localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('role');
+      localStorage.removeItem('expiresAt');
       
       // Remove cookie
       document.cookie = 'transitops-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';

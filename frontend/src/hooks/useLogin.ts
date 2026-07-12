@@ -31,27 +31,8 @@ export function useLogin() {
     authStore.setError(null);
 
     try {
-      let response;
-      const { isDemoModeActive, getMockSession } = require('@/lib/demo');
-      
-      if (isDemoModeActive()) {
-        // Detect role from email for ease of demoing
-        let roleSelected: any = 'superadmin';
-        const emailLower = data.email.toLowerCase();
-        if (emailLower.includes('superadmin')) roleSelected = 'superadmin';
-        else if (emailLower.includes('admin')) roleSelected = 'admin';
-        else if (emailLower.includes('manager')) roleSelected = 'fleet_manager';
-        else if (emailLower.includes('dispatcher')) roleSelected = 'dispatcher';
-        else if (emailLower.includes('driver')) roleSelected = 'driver';
-        else if (emailLower.includes('viewer')) roleSelected = 'viewer';
-        
-        response = getMockSession(roleSelected);
-        // Simulate minor loading lag
-        await new Promise((resolve) => setTimeout(resolve, 600));
-      } else {
-        // Execute login API request
-        response = await authService.login(data);
-      }
+      // Execute login API request
+      const response = await authService.login(data);
       
       // Update session storage
       authStore.setSession(response.user, response.accessToken, response.refreshToken);

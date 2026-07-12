@@ -64,6 +64,26 @@ export const ROLE_PERMISSIONS: Record<UserRole, Record<ResourceType, PermissionA
     reports: ['view'],
     settings: [],
   },
+  safety_officer: {
+    vehicles: ['view', 'edit'],
+    drivers: ['view', 'edit'],
+    trips: ['view', 'edit'],
+    maintenance: ['view'],
+    fuel: ['view'],
+    expenses: ['view'],
+    reports: ['view'],
+    settings: ['view'],
+  },
+  financial_analyst: {
+    vehicles: ['view'],
+    drivers: ['view'],
+    trips: ['view'],
+    maintenance: ['view'],
+    fuel: ['view', 'create', 'edit'],
+    expenses: ['view', 'create', 'edit', 'approve'],
+    reports: ['view', 'create'],
+    settings: ['view'],
+  },
 };
 
 export function hasPermission(role: UserRole, resource: ResourceType, action: PermissionAction): boolean {

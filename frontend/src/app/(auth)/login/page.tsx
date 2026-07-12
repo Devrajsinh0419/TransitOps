@@ -107,55 +107,6 @@ export default function LoginPage() {
 
       <SocialLoginPlaceholder />
 
-      {/* Quick Demo Access Roles */}
-      <div className="mt-4 pt-4 border-t border-border/60 space-y-2 text-center">
-        <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">
-          ⚡ Hackathon Quick Demo Accounts
-        </span>
-        <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
-          <button
-            type="button"
-            onClick={() => {
-              const { switchDemoRole } = require('@/lib/demo');
-              switchDemoRole('superadmin');
-            }}
-            className="flex items-center justify-center gap-1 p-2 border border-border/80 bg-muted/30 hover:bg-primary/10 hover:border-primary/40 rounded-xl transition-all cursor-pointer text-foreground"
-          >
-            👑 Superadmin
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              const { switchDemoRole } = require('@/lib/demo');
-              switchDemoRole('fleet_manager');
-            }}
-            className="flex items-center justify-center gap-1 p-2 border border-border/80 bg-muted/30 hover:bg-primary/10 hover:border-primary/40 rounded-xl transition-all cursor-pointer text-foreground"
-          >
-            🚛 Manager
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              const { switchDemoRole } = require('@/lib/demo');
-              switchDemoRole('dispatcher');
-            }}
-            className="flex items-center justify-center gap-1 p-2 border border-border/80 bg-muted/30 hover:bg-primary/10 hover:border-primary/40 rounded-xl transition-all cursor-pointer text-foreground"
-          >
-            📞 Dispatcher
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              const { switchDemoRole } = require('@/lib/demo');
-              switchDemoRole('driver');
-            }}
-            className="flex items-center justify-center gap-1 p-2 border border-border/80 bg-muted/30 hover:bg-primary/10 hover:border-primary/40 rounded-xl transition-all cursor-pointer text-foreground"
-          >
-            🛞 Driver
-          </button>
-        </div>
-      </div>
-
       <AuthFooter
         message="New to TransitOps?"
         linkText="Contact administration for credentials"
