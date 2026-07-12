@@ -14,7 +14,7 @@ const sizes = {
 
 export function AppTitle({ className, size = 'md' }: AppTitleProps) {
   return (
-    <span className={cn('tracking-tight text-foreground select-none', sizes[size], className)}>
+    <span className={cn('tracking-tight  text-foreground select-none', sizes[size], className)}>
       Transit<span className="text-muted-foreground font-medium">Ops</span>
     </span>
   );

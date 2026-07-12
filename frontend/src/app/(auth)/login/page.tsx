@@ -105,7 +105,7 @@ export default function LoginPage() {
   return (
     <AuthCard>
       <AuthHeader
-        title="Sign in to TransitOps"
+        title="Sign In"
         subtitle="Access your fleet operations control center"
       />
 
