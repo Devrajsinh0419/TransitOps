@@ -3,7 +3,7 @@
 import React from 'react';
 import { Card } from '../cards/Card';
 import { DriverPerformance as PerformanceType } from '@/types/driver';
-import {
+import { formatDistance } from '@/lib/helpers';
   ResponsiveContainer,
   AreaChart,
   Area,
@@ -63,7 +63,7 @@ export function DriverPerformance({ performance }: DriverPerformanceProps) {
     },
     {
       label: 'Distance Driven',
-      value: `${performance.distanceDriven.toLocaleString()} mi`,
+      value: formatDistance(performance.distanceDriven),
       icon: Navigation,
       color: 'text-sky-500 bg-sky-500/10 border-sky-500/20',
       description: 'Odometer mileage recorded',

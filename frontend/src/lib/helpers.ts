@@ -5,6 +5,11 @@ export function formatCurrency(amount: number, currency = 'INR'): string {
   }).format(amount);
 }
 
+export function formatDistance(value: number): string {
+  return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value) + ' km';
+}
+
+
 export function formatOdometer(value: number): string {
   return new Intl.NumberFormat('en-IN', {
     style: 'unit',
@@ -37,6 +42,11 @@ export function getInitials(name: string): string {
     .join('')
     .toUpperCase()
     .slice(0, 2);
+}
+
+export function formatWeight(value: number): string {
+  const kg = value * 0.453592;
+  return `${new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(kg)} kg`;
 }
 
 export function sleep(ms: number): Promise<void> {

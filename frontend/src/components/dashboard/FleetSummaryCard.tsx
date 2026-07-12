@@ -4,6 +4,7 @@ import React from 'react';
 import { Card } from '../cards/Card';
 import { Fuel, Landmark, Milestone, PiggyBank } from 'lucide-react';
 import { FleetSummary } from '@/types/dashboard';
+import { formatCurrency, formatDistance } from '@/lib/helpers';
 
 export interface FleetSummaryCardProps {
   summary: FleetSummary | null;
@@ -33,21 +34,21 @@ export function FleetSummaryCard({ summary, isLoading = false }: FleetSummaryCar
   const metrics = [
     {
       label: 'Avg Fuel Cost',
-      value: `$${data.averageFuelCost.toLocaleString()}`,
+      value: formatCurrency(data.averageFuelCost),
       description: 'Per active vehicle / month',
       icon: Fuel,
       color: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
     },
     {
       label: 'Avg Trip Distance',
-      value: `${data.averageTripDistance.toLocaleString()} mi`,
+      value: formatDistance(data.averageTripDistance),
       description: 'Per route dispatch',
       icon: Milestone,
       color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
     },
     {
       label: 'Maintenance Cost',
-      value: `$${data.maintenanceCost.toLocaleString()}`,
+      value: formatCurrency(data.maintenanceCost),,
       description: 'Total active month spend',
       icon: Landmark,
       color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',

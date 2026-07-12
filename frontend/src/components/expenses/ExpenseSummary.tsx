@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ExpenseSummary as IExpenseSummary } from '@/types/expense';
-import { Landmark, Calendar, Award, Receipt } from 'lucide-react';
+import { formatCurrency } from '@/lib/helpers';
 import { motion } from 'framer-motion';
 
 interface ExpenseSummaryProps {
@@ -13,14 +13,14 @@ export function ExpenseSummary({ summary }: ExpenseSummaryProps) {
   const cards = [
     {
       title: 'APPROVED SPEND (MONTH)',
-      value: `$${summary.monthlyExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: formatCurrency(summary.monthlyExpenses),
       description: 'Audit cleared operating costs',
       icon: Landmark,
       color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
     },
     {
       title: "TODAY'S TRANSACTIONS",
-      value: `$${summary.todayExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: formatCurrency(summary.todayExpenses),,
       description: 'Cleared billing logged today',
       icon: Calendar,
       color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
@@ -34,7 +34,7 @@ export function ExpenseSummary({ summary }: ExpenseSummaryProps) {
     },
     {
       title: 'DAILY AVERAGE RUNRATE',
-      value: `$${summary.averageDailyCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: formatCurrency(summary.averageDailyCost),,
       description: 'Approximated daily financial outflow',
       icon: Receipt,
       color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
