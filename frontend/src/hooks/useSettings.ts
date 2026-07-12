@@ -17,10 +17,10 @@ const DEFAULT_FLEET: FleetSettings = {
   maintenanceCategories: ['Preventative Maintenance', 'Emergency Repair', 'Odometer Calibration', 'Inspection Checklist'],
   expenseCategories: ['Fuel refills', 'Vehicle repairs', 'Tolls & Highway', 'Insurance', 'Storage & Parking'],
   tripPriorities: ['Low', 'Medium', 'High', 'Critical'],
-  defaultDistanceUnit: 'mi',
-  defaultFuelUnit: 'gal',
-  defaultCurrency: 'USD',
-  defaultTimezone: 'America/Chicago',
+  defaultDistanceUnit: 'km',
+  defaultFuelUnit: 'L',
+  defaultCurrency: 'INR',
+  defaultTimezone: 'Asia/Kolkata',
 };
 
 const DEFAULT_SECURITY: SecuritySettings = {
@@ -28,22 +28,32 @@ const DEFAULT_SECURITY: SecuritySettings = {
   sessionTimeoutMinutes: 30,
 };
 
+import { useTheme } from './useTheme';
+
 export function useSettings() {
   const [appearance, setAppearance] = useState<AppearanceSettings>(DEFAULT_APPEARANCE);
   const [fleet, setFleet] = useState<FleetSettings>(DEFAULT_FLEET);
   const [security, setSecurity] = useState<SecuritySettings>(DEFAULT_SECURITY);
   const [isLoading, setIsLoading] = useState(true);
+  const { setTheme } = useTheme();
 
   useEffect(() => {
-    const savedApp = localStorage.getItem('transitops_appearance');
+    const loadSettings = () => {
+      const savedApp = localStorage.getItem('transitops_appearance');
+      if (savedApp) setAppearance(JSON.parse(savedApp));
+    };
+
+    loadSettings();
+
     const savedFleet = localStorage.getItem('transitops_fleet_settings');
     const savedSec = localStorage.getItem('transitops_security_settings');
-
-    if (savedApp) setAppearance(JSON.parse(savedApp));
     if (savedFleet) setFleet(JSON.parse(savedFleet));
     if (savedSec) setSecurity(JSON.parse(savedSec));
 
     setIsLoading(false);
+
+    window.addEventListener('transitops_appearance_changed', loadSettings);
+    return () => window.removeEventListener('transitops_appearance_changed', loadSettings);
   }, []);
 
   const updateAppearance = async (data: Partial<AppearanceSettings>): Promise<boolean> => {
@@ -52,6 +62,9 @@ export function useSettings() {
     const updated = { ...appearance, ...data };
     setAppearance(updated);
     localStorage.setItem('transitops_appearance', JSON.stringify(updated));
+    if (data.theme) {
+      setTheme(data.theme);
+    }
     toast.success('Visual configurations updated');
     setIsLoading(false);
     return true;

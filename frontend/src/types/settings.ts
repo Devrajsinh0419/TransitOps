@@ -72,8 +72,8 @@ export interface FleetSettings {
   expenseCategories: string[];
   tripPriorities: string[];
   defaultDistanceUnit: 'mi' | 'km';
-  defaultFuelUnit: 'gal' | 'l';
-  defaultCurrency: 'USD' | 'EUR' | 'GBP';
+  defaultFuelUnit: 'gal' | 'l' | 'L';
+  defaultCurrency: 'USD' | 'EUR' | 'GBP' | 'INR';
   defaultTimezone: string;
 }
 

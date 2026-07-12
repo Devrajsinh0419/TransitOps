@@ -1,12 +1,12 @@
-export function formatCurrency(amount: number, currency = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(amount: number, currency = 'INR'): string {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency,
+    currency: 'INR',
   }).format(amount);
 }
 
 export function formatOdometer(value: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'unit',
     unit: 'kilometer',
     unitDisplay: 'short',
@@ -15,7 +15,18 @@ export function formatOdometer(value: number): string {
 }
 
 export function formatFuelQuantity(value: number): string {
-  return `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(value)} L`;
+  return `${new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 }).format(value)} L`;
+}
+
+export function formatDate(dateString: string | Date | undefined | null): string {
+  if (!dateString) return '';
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return String(dateString);
+  
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
 }
 
 export function getInitials(name: string): string {

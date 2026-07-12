@@ -42,6 +42,13 @@ export default function DashboardPage() {
 
   const [uiState, setUiState] = useState(uiStore.getState());
   const [showFilters, setShowFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    region: '',
+    vehicleType: '',
+    status: '',
+    department: '',
+  });
 
   useEffect(() => {
     const unsubscribe = uiStore.subscribe((state) => {
@@ -56,6 +63,49 @@ export default function DashboardPage() {
   const handleRetry = () => {
     refreshDashboard();
   };
+
+  const filteredTrips = trips.filter((trip) => {
+    const matchesSearch = searchTerm === '' ||
+      trip.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trip.driver.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trip.vehicle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trip.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trip.destination.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trip.cargo.toLowerCase().includes(searchTerm.toLowerCase());
+      
+    const matchesStatus = filters.status === '' ||
+      trip.status.toLowerCase() === filters.status.toLowerCase() ||
+      (filters.status === 'maintenance' && trip.status === 'maintenance');
+      
+    return matchesSearch && matchesStatus;
+  });
+
+  const filteredActivities = activities.filter((activity) => {
+    const matchesSearch = searchTerm === '' ||
+      activity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      activity.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      activity.type.toLowerCase().includes(searchTerm.toLowerCase());
+      
+    const matchesDepartment = filters.department === '' ||
+      activity.type.toLowerCase().includes(filters.department.toLowerCase()) ||
+      activity.description.toLowerCase().includes(filters.department.toLowerCase());
+      
+    return matchesSearch && matchesDepartment;
+  });
+
+  const filteredNotifications = notifications.filter((notif) => {
+    const matchesSearch = searchTerm === '' ||
+      notif.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      notif.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      notif.category.toLowerCase().includes(searchTerm.toLowerCase());
+      
+    const matchesCategory = filters.department === '' ||
+      notif.category.toLowerCase() === filters.department.toLowerCase() ||
+      (filters.department === 'operations' && notif.category === 'trips') ||
+      (filters.department === 'maintenance' && notif.category === 'maintenance');
+      
+    return matchesSearch && matchesCategory;
+  });
 
   // 1. Error state view
   if (error) {
@@ -101,13 +151,14 @@ export default function DashboardPage() {
         title="Fleet Operations Control"
         subtitle="Real-time telemetry and dispatch logistics metrics"
         onFilterToggle={() => setShowFilters(!showFilters)}
+        onSearchChange={setSearchTerm}
       />
 
       {/* 2. Collapsible filters panel */}
       {showFilters && (
         <DashboardFilters
-          onApplyFilters={(filters) => console.log('Applying Filters:', filters)}
-          onResetFilters={() => console.log('Filters reset')}
+          onApplyFilters={setFilters}
+          onResetFilters={() => setFilters({ region: '', vehicleType: '', status: '', department: '' })}
         />
       )}
 
@@ -122,7 +173,7 @@ export default function DashboardPage() {
         {/* Left Column (Charts, Active Trips table) */}
         <div className="lg:col-span-2 space-y-6">
           <DashboardCharts chartData={chartData} />
-          <TripsTable trips={trips} />
+          <TripsTable trips={filteredTrips} />
         </div>
 
         {/* Right Column (Quick Actions, Warnings, Summaries, Logs) */}
@@ -131,7 +182,7 @@ export default function DashboardPage() {
           <FleetSummaryCard summary={overview} />
           <MaintenanceAlertCard />
           <LicenseAlertCard />
-          <RecentActivity activities={activities} />
+          <RecentActivity activities={filteredActivities} />
         </div>
       </div>
 
@@ -139,7 +190,7 @@ export default function DashboardPage() {
       <NotificationPanel
         isOpen={uiState.notificationsOpen}
         onClose={() => uiStore.setNotificationsOpen(false)}
-        notifications={notifications}
+        notifications={filteredNotifications}
         onMarkAllAsRead={markAllNotificationsAsRead}
         onMarkAsRead={markNotificationAsRead}
       />

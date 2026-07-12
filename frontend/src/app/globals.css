@@ -4,6 +4,8 @@
 @import "../styles/scrollbar.css";
 @import "../styles/utilities.css";
 
+@variant dark (.dark &);
+
 @theme {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));

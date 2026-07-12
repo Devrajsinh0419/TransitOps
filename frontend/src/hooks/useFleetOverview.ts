@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FleetSummary } from '@/types/dashboard';
-
-const mockOverview: FleetSummary = {
-  averageFuelCost: 4520,
-  averageTripDistance: 245,
-  maintenanceCost: 12400,
-  vehicleRoi: 14.8,
-};
+import { dashboardService } from '@/services/dashboard.service';
 
 export function useFleetOverview() {
   const [overview, setOverview] = useState<FleetSummary | null>(null);
@@ -16,11 +10,25 @@ export function useFleetOverview() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setOverview(mockOverview);
-      setIsLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
+    const fetchOverview = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await dashboardService.getFleetOverview();
+        const formattedOverview: FleetSummary = {
+          averageFuelCost: data.averageFuelCost ?? 4520,
+          averageTripDistance: data.averageTripDistance ?? 245,
+          maintenanceCost: data.maintenanceCost ?? 12400,
+          vehicleRoi: data.vehicleRoi ?? 14.8,
+        };
+        setOverview(formattedOverview);
+      } catch (err: any) {
+        setError('Failed to fetch fleet overview');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchOverview();
   }, []);
 
   return {

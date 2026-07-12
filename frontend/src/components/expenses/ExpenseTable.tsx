@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { ExpenseRecord } from '@/types/expense';
 import { ExpenseStatusBadge } from './ExpenseStatusBadge';
 import { Button } from '../ui/Button';
-import { Eye, Trash2, Calendar, CreditCard, Tag, DollarSign } from 'lucide-react';
+import { Eye, Trash2, Calendar, CreditCard, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatCurrency, formatDate } from '@/lib/helpers';
 
 interface ExpenseTableProps {
   expenses: ExpenseRecord[];
@@ -54,14 +55,14 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
                 <div>
                   <span className="block text-[8px] font-bold uppercase tracking-wider text-muted-foreground/60">Total Cost</span>
                   <span className="font-extrabold text-foreground flex items-center">
-                    <DollarSign className="h-3 w-3" /> {exp.amount.toFixed(2)}
+                    {formatCurrency(exp.amount)}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-1">
                 <div className="text-[9px] text-muted-foreground flex items-center gap-1 font-semibold">
-                  <Calendar className="h-3 w-3" /> {exp.date}
+                  <Calendar className="h-3 w-3" /> {formatDate(exp.date)}
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Link href={`/expenses/${exp.id}`}>
@@ -128,7 +129,7 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
                       )}
                     </td>
                     <td className="p-3 align-middle text-right font-extrabold text-foreground">
-                      ${exp.amount.toFixed(2)}
+                      {formatCurrency(exp.amount)}
                     </td>
                     <td className="p-3 align-middle">
                       <div className="font-semibold text-foreground flex items-center gap-1.5">
@@ -144,7 +145,7 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
                       <ExpenseStatusBadge status={exp.status} />
                     </td>
                     <td className="p-3 align-middle text-muted-foreground font-semibold">
-                      {exp.date}
+                      {formatDate(exp.date)}
                     </td>
                     <td className="p-3 align-middle text-center">
                       <div className="flex items-center justify-center gap-1">

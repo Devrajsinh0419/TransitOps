@@ -20,10 +20,10 @@ export function FleetConfiguration() {
   const [newMaint, setNewMaint] = React.useState('');
   const [newExp, setNewExp] = React.useState('');
 
-  const [distUnit, setDistUnit] = React.useState<'mi' | 'km'>('mi');
-  const [fuelUnit, setFuelUnit] = React.useState<'gal' | 'l'>('gal');
-  const [currency, setCurrency] = React.useState<'USD' | 'EUR' | 'GBP'>('USD');
-  const [timezone, setTimezone] = React.useState('America/Chicago');
+  const [distUnit, setDistUnit] = React.useState<'mi' | 'km'>('km');
+  const [fuelUnit, setFuelUnit] = React.useState<'gal' | 'l' | 'L'>('L');
+  const [currency, setCurrency] = React.useState<'USD' | 'EUR' | 'GBP' | 'INR'>('INR');
+  const [timezone, setTimezone] = React.useState('Asia/Kolkata');
 
   // Sync settings values
   React.useEffect(() => {
@@ -32,10 +32,10 @@ export function FleetConfiguration() {
       setFuelTypes(fleet.fuelTypes || []);
       setMaintenanceCategories(fleet.maintenanceCategories || []);
       setExpenseCategories(fleet.expenseCategories || []);
-      setDistUnit(fleet.defaultDistanceUnit || 'mi');
-      setFuelUnit(fleet.defaultFuelUnit || 'gal');
-      setCurrency(fleet.defaultCurrency || 'USD');
-      setTimezone(fleet.defaultTimezone || 'America/Chicago');
+      setDistUnit(fleet.defaultDistanceUnit || 'km');
+      setFuelUnit(fleet.defaultFuelUnit || 'L');
+      setCurrency(fleet.defaultCurrency || 'INR');
+      setTimezone(fleet.defaultTimezone || 'Asia/Kolkata');
     }
   }, [fleet]);
 
@@ -108,8 +108,8 @@ export function FleetConfiguration() {
               onChange={(e) => setFuelUnit(e.target.value as any)}
               className="h-10 w-full rounded-lg border border-border/60 bg-muted/10 px-3 focus:outline-none"
             >
+              <option value="L">Liters (L)</option>
               <option value="gal">Gallons (gal)</option>
-              <option value="l">Liters (L)</option>
             </select>
           </div>
 
@@ -121,6 +121,7 @@ export function FleetConfiguration() {
               onChange={(e) => setCurrency(e.target.value as any)}
               className="h-10 w-full rounded-lg border border-border/60 bg-muted/10 px-3 focus:outline-none"
             >
+              <option value="INR">Indian Rupee (₹)</option>
               <option value="USD">US Dollar ($)</option>
               <option value="EUR">Euro (€)</option>
               <option value="GBP">British Pound (£)</option>
@@ -135,6 +136,7 @@ export function FleetConfiguration() {
               onChange={(e) => setTimezone(e.target.value)}
               className="h-10 w-full rounded-lg border border-border/60 bg-muted/10 px-3 focus:outline-none"
             >
+              <option value="Asia/Kolkata">India Standard Time (IST)</option>
               <option value="America/New_York">Eastern Time (ET)</option>
               <option value="America/Chicago">Central Time (CT)</option>
               <option value="America/Denver">Mountain Time (MT)</option>

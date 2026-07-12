@@ -4,8 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import { FuelLog } from '@/types/fuel';
 import { Button } from '../ui/Button';
-import { Eye, Calendar, Fuel, MapPin, DollarSign, User, ExternalLink } from 'lucide-react';
+import { Eye, Calendar, Fuel, MapPin, User, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatCurrency, formatDate } from '@/lib/helpers';
 
 interface FuelTableProps {
   logs: FuelLog[];
@@ -28,7 +29,7 @@ export function FuelTable({ logs }: FuelTableProps) {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold text-foreground">{log.fuelLogId}</span>
                 <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-semibold">
-                  <Calendar className="h-3 w-3" /> {log.date}
+                  <Calendar className="h-3 w-3" /> {formatDate(log.date)}
                 </span>
               </div>
 
@@ -52,7 +53,7 @@ export function FuelTable({ logs }: FuelTableProps) {
                 <div>
                   <span className="block text-[8px] font-bold uppercase tracking-wider text-muted-foreground/60">Total Cost</span>
                   <span className="font-extrabold text-foreground flex items-center">
-                    <DollarSign className="h-3 w-3" /> {log.totalCost.toFixed(2)}
+                    {formatCurrency(log.totalCost)}
                   </span>
                 </div>
               </div>
@@ -85,7 +86,7 @@ export function FuelTable({ logs }: FuelTableProps) {
                 <th className="p-3 text-right">Quantity (L)</th>
                 <th className="p-3 text-right">Price per L</th>
                 <th className="p-3 text-right">Total Cost</th>
-                <th className="p-3 text-right">Odometer (mi)</th>
+                <th className="p-3 text-right">Odometer (km)</th>
                 <th className="p-3">Fuel Station</th>
                 <th className="p-3">Date</th>
                 <th className="p-3 text-center">Actions</th>
@@ -118,10 +119,10 @@ export function FuelTable({ logs }: FuelTableProps) {
                       {log.quantity.toLocaleString()} L
                     </td>
                     <td className="p-3 align-middle text-right text-muted-foreground">
-                      ${log.pricePerLiter.toFixed(2)}
+                      {formatCurrency(log.pricePerLiter)}
                     </td>
                     <td className="p-3 align-middle text-right font-extrabold text-foreground">
-                      ${log.totalCost.toFixed(2)}
+                      {formatCurrency(log.totalCost)}
                     </td>
                     <td className="p-3 align-middle text-right font-semibold text-muted-foreground">
                       {log.odometer.toLocaleString()}
@@ -130,7 +131,7 @@ export function FuelTable({ logs }: FuelTableProps) {
                       {log.fuelStation}
                     </td>
                     <td className="p-3 align-middle text-muted-foreground font-semibold">
-                      {log.date}
+                      {formatDate(log.date)}
                     </td>
                     <td className="p-3 align-middle text-center">
                       <Link href={`/fuel/${log.id}`}>

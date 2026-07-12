@@ -2,131 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { TripSummary, Activity, Notification, ChartData } from '@/types/dashboard';
+import { dashboardService } from '@/services/dashboard.service';
 import { toast } from 'sonner';
-
-const mockTrips: TripSummary[] = [
-  {
-    id: 'TRP-8902',
-    vehicle: 'Volvo FH16 (TRK-491)',
-    driver: 'John Doe',
-    source: 'New York Port',
-    destination: 'Chicago Logistics Hub',
-    cargo: 'Electronic components',
-    status: 'on_trip',
-    eta: '5 hours',
-  },
-  {
-    id: 'TRP-8903',
-    vehicle: 'Scania R500 (TRK-108)',
-    driver: 'Sarah Smith',
-    source: 'Los Angeles Terminal',
-    destination: 'Phoenix Warehouse',
-    cargo: 'Medical supplies',
-    status: 'on_trip',
-    eta: '2 hours',
-  },
-  {
-    id: 'TRP-8904',
-    vehicle: 'Mercedes Actros (TRK-552)',
-    driver: 'Michael Brown',
-    source: 'Seattle Harbor',
-    destination: 'Salt Lake Depot',
-    cargo: 'Automotive parts',
-    status: 'pending',
-    eta: 'Pending Departure',
-  },
-  {
-    id: 'TRP-8905',
-    vehicle: 'DAF XF (TRK-301)',
-    driver: 'Emma Davis',
-    source: 'Houston Port',
-    destination: 'Dallas Distribution',
-    cargo: 'Retail merchandise',
-    status: 'completed',
-    eta: 'Arrived',
-  },
-];
-
-const mockActivities: Activity[] = [
-  {
-    id: 'act-1',
-    type: 'trip_created',
-    time: '12 minutes ago',
-    description: 'New trip TRP-8904 scheduled for Seattle to Salt Lake City.',
-    user: 'Sarah Admin',
-  },
-  {
-    id: 'act-2',
-    type: 'driver_assigned',
-    time: '45 minutes ago',
-    description: 'Driver Michael Brown assigned to vehicle TRK-552.',
-    user: 'David Dispatcher',
-  },
-  {
-    id: 'act-3',
-    type: 'fuel_logged',
-    time: '2 hours ago',
-    description: 'Fuel receipt of 350L ($480.00) logged for Volvo TRK-491.',
-    user: 'John Doe',
-  },
-  {
-    id: 'act-4',
-    type: 'maintenance_started',
-    time: '4 hours ago',
-    description: 'Brake pad replacement started for Scania TRK-201.',
-    user: 'Marcus Mechanic',
-  },
-  {
-    id: 'act-5',
-    type: 'vehicle_added',
-    time: '1 day ago',
-    description: 'New Freightliner Cascadia TRK-789 added to the fleet.',
-    user: 'Sarah Admin',
-  },
-];
-
-const mockNotifications: Notification[] = [
-  {
-    id: 'notif-1',
-    category: 'maintenance',
-    title: 'Critical Engine Failure Warning',
-    message: 'Engine fault code SPN-102 reported on vehicle TRK-108 (Scania R500). Action required.',
-    time: '5m ago',
-    read: false,
-  },
-  {
-    id: 'notif-2',
-    category: 'trips',
-    title: 'Trip Delay Alert',
-    message: 'Trip TRP-8902 is running 45 minutes behind schedule due to traffic on I-80.',
-    time: '20m ago',
-    read: false,
-  },
-  {
-    id: 'notif-3',
-    category: 'drivers',
-    title: 'License Expiration Warning',
-    message: 'Driver Marcus Miller CDL expires in 12 days. Renew credentials to avoid violation.',
-    time: '1h ago',
-    read: false,
-  },
-  {
-    id: 'notif-4',
-    category: 'vehicles',
-    title: 'Annual Inspection Due',
-    message: 'Vehicle TRK-552 due for annual safety inspection by July 20, 2026.',
-    time: '1d ago',
-    read: true,
-  },
-  {
-    id: 'notif-5',
-    category: 'system',
-    title: 'System Maintenance Scheduled',
-    message: 'TransitOps ERP will undergo scheduled updates on Saturday from 02:00 to 04:00 UTC.',
-    time: '2d ago',
-    read: true,
-  },
-];
 
 const mockChartData: ChartData = {
   vehicleStatus: [
@@ -171,20 +48,83 @@ export function useDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDashboardData = () => {
+  const fetchDashboardData = async () => {
     setIsLoading(true);
     setError(null);
-    
-    // Simulate API fetch delay
-    const timer = setTimeout(() => {
-      setTrips(mockTrips);
-      setActivities(mockActivities);
-      setNotifications(mockNotifications);
+    try {
+      const [tripsRes, activitiesRes, notificationsRes] = await Promise.all([
+        dashboardService.getTrips(),
+        dashboardService.getActivities(),
+        dashboardService.getNotifications(),
+      ]);
+
+      const mappedTrips = tripsRes.map((t: any): TripSummary => {
+        let status: 'pending' | 'on_trip' | 'completed' | 'cancelled' | 'maintenance' = 'pending';
+        const rawStatus = String(t.status).toLowerCase();
+        if (rawStatus === 'dispatched' || rawStatus === 'on trip' || rawStatus === 'on_trip') {
+          status = 'on_trip';
+        } else if (rawStatus === 'completed') {
+          status = 'completed';
+        } else if (rawStatus === 'cancelled') {
+          status = 'cancelled';
+        }
+
+        return {
+          id: t.id ? `TRP-${t.id}` : 'TRP-UNKNOWN',
+          vehicle: t.vehicle ?? 'Unknown Vehicle',
+          driver: t.driver ?? 'Unknown Driver',
+          source: t.source ?? 'Unknown Source',
+          destination: t.destination ?? 'Unknown Destination',
+          cargo: t.cargo ?? 'General Cargo',
+          status,
+          eta: status === 'completed' ? 'Arrived' : '2 hours',
+        };
+      });
+
+      const mappedActivities = activitiesRes.map((a: any): Activity => {
+        let type: 'vehicle_added' | 'trip_created' | 'maintenance_started' | 'driver_assigned' | 'fuel_logged' = 'trip_created';
+        const rawDesc = String(a.description).toLowerCase();
+        if (rawDesc.includes('vehicle')) type = 'vehicle_added';
+        else if (rawDesc.includes('maintenance')) type = 'maintenance_started';
+        else if (rawDesc.includes('driver')) type = 'driver_assigned';
+        else if (rawDesc.includes('fuel')) type = 'fuel_logged';
+
+        return {
+          id: String(a.id),
+          type,
+          time: 'Just now',
+          description: a.description,
+          user: a.user ?? 'System',
+        };
+      });
+
+      const mappedNotifications = notificationsRes.map((n: any): Notification => {
+        let category: 'trips' | 'maintenance' | 'drivers' | 'vehicles' | 'system' = 'system';
+        const rawTitle = String(n.title).toLowerCase();
+        if (rawTitle.includes('trip')) category = 'trips';
+        else if (rawTitle.includes('maintenance')) category = 'maintenance';
+        else if (rawTitle.includes('driver')) category = 'drivers';
+        else if (rawTitle.includes('fuel') || rawTitle.includes('vehicle')) category = 'vehicles';
+
+        return {
+          id: String(n.id),
+          category,
+          title: n.title,
+          message: n.message,
+          time: '5m ago',
+          read: n.read ?? false,
+        };
+      });
+
+      setTrips(mappedTrips);
+      setActivities(mappedActivities);
+      setNotifications(mappedNotifications);
       setChartData(mockChartData);
+    } catch (err: any) {
+      setError('Failed to fetch dashboard telemetry');
+    } finally {
       setIsLoading(false);
-    }, 850);
-    
-    return () => clearTimeout(timer);
+    }
   };
 
   useEffect(() => {
@@ -193,7 +133,7 @@ export function useDashboard() {
 
   const markAllNotificationsAsRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    toast?.success?.('All notifications marked as read'); // dynamic check
+    toast?.success?.('All notifications marked as read');
   };
 
   const markNotificationAsRead = (id: string) => {
