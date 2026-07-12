@@ -3,10 +3,15 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'first_name', 'last_name', 'created_at', 'updated_at')
+        fields = ('id', 'username', 'email', 'role', 'first_name', 'last_name', 'name', 'created_at', 'updated_at')
         read_only_fields = ('id', 'created_at', 'updated_at')
+
+    def get_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip() or obj.username
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -28,6 +33,21 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
+        username_or_email = attrs.get(self.username_field)
+        if username_or_email and '@' in username_or_email:
+            try:
+                user = User.objects.get(email=username_or_email)
+                attrs[self.username_field] = user.username
+            except User.DoesNotExist:
+                pass
+                
         data = super().validate(attrs)
-        data['user'] = UserSerializer(self.user).data
+        data['accessToken'] = data.get('access')
+        data['refreshToken'] = data.get('refresh')
+        
+        # Format user object name key as expected by frontend
+        user_data = UserSerializer(self.user).data
+        # Ensure 'name' is in user_data
+        user_data['name'] = f"{self.user.first_name} {self.user.last_name}".strip() or self.user.username
+        data['user'] = user_data
         return data

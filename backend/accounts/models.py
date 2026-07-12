@@ -7,6 +7,7 @@ class User(AbstractUser):
         DISPATCHER = "dispatcher", "Dispatcher"
         SAFETY_OFFICER = "safety_officer", "Safety Officer"
         FINANCIAL_ANALYST = "financial_analyst", "Financial Analyst"
+        ADMIN = "admin", "Admin"
 
     role = models.CharField(
         max_length=30,

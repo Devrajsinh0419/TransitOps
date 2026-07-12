@@ -101,14 +101,18 @@ TransitOps/
 
 ---
 
-## ⚡ Hackathon Presentation Deck & Demo Mode
+### Database Demo Users
 
-TransitOps features an **offline Demo Mode** enabled by default to allow seamless judging and inspection without a running backend.
+The following users are seeded in the PostgreSQL database for live backend authentication:
 
-### Features
-1. **Dynamic Role Switcher**: A floating pill at the bottom-right of the viewport allows judges to swap between roles (`superadmin`, `fleet_manager`, `dispatcher`, `driver`, `viewer`) instantly.
-2. **Instant Demo Accounts**: The login screen contains direct login shortcuts for all major operator personas.
-3. **Reset Database Mocks**: Clear modifying data and restore default mock parameters with a single click.
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@transitops.com` | `Admin@123` |
+| Fleet Manager | `fleet@transitops.com` | `Fleet@123` |
+| Safety Officer | `safety@transitops.com` | `Safety@123` |
+| Financial Analyst | `finance@transitops.com` | `Finance@123` |
+
+---
 
 ---
 
