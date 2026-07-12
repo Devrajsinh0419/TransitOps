@@ -1,0 +1,27 @@
+import React from 'react';
+import { Logo } from '@/components/common/Logo';
+import Link from 'next/link';
+
+export default function ForgotPasswordPage() {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <div className="mb-6">
+        <Logo />
+      </div>
+      <h2 className="text-xl font-bold tracking-tight text-foreground mb-1">Forgot password</h2>
+      <p className="text-sm text-muted-foreground mb-6">Reset your password to regain access to the platform</p>
+      
+      <div className="w-full py-8 px-4 border border-dashed border-border rounded-xl bg-muted/40 text-xs font-mono text-muted-foreground mb-6">
+        [Forgot Password Component Placeholder]
+        <div className="mt-4 text-[10px] text-left">
+          • Route: /forgot-password<br />
+          • Actions: Send password recovery email
+        </div>
+      </div>
+
+      <Link href="/login" className="text-sm font-medium text-primary hover:underline">
+        Back to Login
+      </Link>
+    </div>
+  );
+}
