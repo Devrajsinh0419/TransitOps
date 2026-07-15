@@ -4,6 +4,7 @@ from django.conf import settings
 
 
 class FuelLogSerializer(serializers.ModelSerializer):
+    receipt = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = FuelLog

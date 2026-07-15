@@ -18,12 +18,18 @@ class FuelLogViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        vehicle = self.request.query_params.get('vehicle')
+        vehicle = self.request.query_params.get('vehicleId') or self.request.query_params.get('vehicle')
         if vehicle:
             queryset = queryset.filter(vehicle_id=vehicle)
-        date_from = self.request.query_params.get('date_from')
-        if date_from:
-            queryset = queryset.filter(date__gte=date_from)
+        
+        fuel_type = self.request.query_params.get('fuelType')
+        if fuel_type:
+            queryset = queryset.filter(fuel_type__icontains=fuel_type)
+
+        date_range = self.request.query_params.get('dateRange') or self.request.query_params.get('date_from')
+        if date_range:
+            # Simple handling if dateRange is just a starting date, or adjust according to frontend implementation
+            queryset = queryset.filter(date__gte=date_range)
         return queryset
 
     @action(detail=False, methods=['get'], url_path='statistics')

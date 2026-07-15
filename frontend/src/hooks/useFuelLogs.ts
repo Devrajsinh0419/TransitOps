@@ -29,8 +29,8 @@ export function useFuelLogs() {
     setError(null);
     try {
       const response = await fuelService.getFuelLogs(filters);
-      // DRF DefaultRouter returns { count, next, previous, results }
-      const logs: FuelLog[] = (response as any).results ?? (response as any).data ?? [];
+      // DRF viewset without pagination returns a plain array
+      const logs: FuelLog[] = Array.isArray(response) ? response : (response as any).results ?? (response as any).data ?? [];
       setFuelLogs(logs);
 
       const totalCost = logs.reduce((sum, item) => sum + (Number(item.totalCost) || 0), 0);

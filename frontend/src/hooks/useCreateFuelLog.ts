@@ -15,7 +15,19 @@ export function useCreateFuelLog() {
       toast.success('Fuel log created successfully');
       return true;
     } catch (err: any) {
-      const msg = err.response?.data?.detail || 'Failed to create fuel log';
+      const respData = err.response?.data;
+      let msg = 'Failed to create fuel log';
+      if (respData) {
+        if (respData.detail) {
+          msg = respData.detail;
+        } else if (typeof respData === 'object') {
+          // Extract the first validation error message
+          const errors = Object.values(respData).flat();
+          if (errors.length > 0 && typeof errors[0] === 'string') {
+            msg = errors[0];
+          }
+        }
+      }
       toast.error('Failed to save fuel log', { description: msg });
       return false;
     } finally {
