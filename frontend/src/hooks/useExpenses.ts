@@ -29,8 +29,9 @@ export function useExpenses() {
     setError(null);
     try {
       const response = await expenseService.getExpenses(filters);
-      // DRF DefaultRouter returns { count, next, previous, results }
-      const records: ExpenseRecord[] = (response as any).results ?? (response as any).data ?? [];
+      const records: ExpenseRecord[] = Array.isArray(response)
+        ? response
+        : (response as any).results ?? (response as any).data ?? [];
       setExpenses(records);
 
       const monthlyTotal = records
