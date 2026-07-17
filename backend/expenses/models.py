@@ -15,7 +15,7 @@ class Expense(models.Model):
         APPROVED = "Approved", "Approved"
         REJECTED = "Rejected", "Rejected"
 
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='expenses')
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True, blank=True, related_name='expenses')
     expense_type = models.CharField(max_length=50, choices=ExpenseType.choices)
     category = models.CharField(max_length=50, blank=True, default="")
     amount = models.DecimalField(max_digits=12, decimal_places=2)

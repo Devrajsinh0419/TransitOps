@@ -3,45 +3,46 @@
 import React from 'react';
 import { Truck, UserPlus, PlusCircle, Droplet, Wrench, FileSpreadsheet } from 'lucide-react';
 import { QuickActionCard } from './QuickActionCard';
-import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export function QuickActions() {
+  const router = useRouter();
   const actions = [
     {
       title: 'Register Vehicle',
       description: 'Add a new vehicle record to the active fleet registry.',
       icon: Truck,
-      onClick: () => toast.info('Register Vehicle clicked', { description: 'Opening registry panel...' }),
+      onClick: () => router.push('/vehicles/new'),
     },
     {
       title: 'Register Driver',
       description: 'Enlist new commercial drivers and upload CDL profiles.',
       icon: UserPlus,
-      onClick: () => toast.info('Register Driver clicked', { description: 'Opening CDL credentials uploader...' }),
+      onClick: () => router.push('/drivers/new'),
     },
     {
       title: 'Create Trip',
       description: 'Dispatch trips, assign drivers, and configure routes.',
       icon: PlusCircle,
-      onClick: () => toast.info('Create Trip clicked', { description: 'Opening routing & planning dialog...' }),
+      onClick: () => router.push('/trips/new'),
     },
     {
       title: 'Fuel Log',
       description: 'Record fuel fillups, expenses, and efficiency metrics.',
       icon: Droplet,
-      onClick: () => toast.info('Fuel Log clicked', { description: 'Opening telemetry fuel input sheets...' }),
+      onClick: () => router.push('/fuel/new'),
     },
     {
       title: 'Maintenance',
       description: 'Schedule preventative maintenance or log vehicle shop tasks.',
       icon: Wrench,
-      onClick: () => toast.info('Maintenance clicked', { description: 'Opening shop tickets dashboard...' }),
+      onClick: () => router.push('/maintenance/new'),
     },
     {
       title: 'Reports',
       description: 'Generate operational reports, logs, and fuel indexes.',
       icon: FileSpreadsheet,
-      onClick: () => toast.info('Reports clicked', { description: 'Opening report query center...' }),
+      onClick: () => router.push('/reports'),
     },
   ];
 

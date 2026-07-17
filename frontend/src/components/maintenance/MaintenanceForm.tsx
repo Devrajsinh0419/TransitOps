@@ -7,9 +7,10 @@ import { maintenanceSchema, MaintenanceSchemaInput } from '@/validation/maintena
 import { Button } from '../ui/Button';
 import { Input } from '../forms/Input';
 import { Select } from '../forms/Select';
-import { activeVehicles } from '@/hooks/useVehicles';
+import { activeVehicles as DEFAULT_VEHICLES } from '@/hooks/useVehicles';
 import { AlertCircle, Save, ArrowLeft, Wrench, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
+import { vehicleService } from '@/services/vehicle.service';
 
 interface MaintenanceFormProps {
   initialValues?: Partial<MaintenanceSchemaInput>;
@@ -18,7 +19,51 @@ interface MaintenanceFormProps {
   isEdit?: boolean;
 }
 
+// Mapper to convert backend vehicle models to dropdown options
+const mapBackendVehicle = (v: any) => ({
+  id: String(v.id),
+  name: v.vehicle_name || `${v.make} ${v.model}`,
+  registrationNumber: v.registration_number,
+  currentOdometer: parseInt(v.odometer) || 0,
+  status: v.status?.toLowerCase() === 'on_trip' ? 'on_trip' : v.status?.toLowerCase() === 'available' ? 'available' : 'maintenance',
+});
+
 export function MaintenanceForm({ initialValues, onSubmit, isLoading = false, isEdit = false }: MaintenanceFormProps) {
+  const [vehicles, setVehicles] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    let active = true;
+    const loadData = async () => {
+      try {
+        const vehiclesRes = await vehicleService.getVehicles().catch(() => []);
+        if (!active) return;
+        
+        const rawVehicles = Array.isArray(vehiclesRes) ? vehiclesRes : (vehiclesRes as any).results || [];
+        const backendVehicles = rawVehicles.map(mapBackendVehicle);
+        
+        // Merge backend data with default mock data, ensuring no duplicates
+        const mergedVehicles = [
+          ...backendVehicles,
+          ...DEFAULT_VEHICLES.map(v => ({
+            id: String(v.id),
+            name: v.name,
+            registrationNumber: v.registrationNumber,
+            currentOdometer: v.currentOdometer,
+            status: v.status
+          })).filter(
+            (mv) => !backendVehicles.some((bv: any) => bv.registrationNumber.toLowerCase() === mv.registrationNumber.toLowerCase())
+          ),
+        ];
+        
+        setVehicles(mergedVehicles);
+      } catch (error) {
+        console.error('Failed to load vehicles', error);
+      }
+    };
+    loadData();
+    return () => { active = false; };
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -39,7 +84,7 @@ export function MaintenanceForm({ initialValues, onSubmit, isLoading = false, is
   });
 
   const selectedVehicleId = watch('vehicleId');
-  const selectedVehicle = activeVehicles.find((v) => v.id === selectedVehicleId);
+  const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId);
 
   // Sync vehicle parameters upon selection
   React.useEffect(() => {
@@ -73,7 +118,7 @@ export function MaintenanceForm({ initialValues, onSubmit, isLoading = false, is
                 onChange={(e) => setValue('vehicleId', e.target.value)}
                 options={[
                   { value: '', label: 'Select vehicle...' },
-                  ...activeVehicles.map((v) => ({
+                  ...vehicles.map((v) => ({
                     value: v.id,
                     label: `${v.registrationNumber} - ${v.name} (${v.status.toUpperCase()})`,
                   })),

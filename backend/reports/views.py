@@ -122,13 +122,19 @@ class ExpenseReportView(APIView):
             writer.writerow(['ID', 'Vehicle', 'Expense Type', 'Category', 'Amount (₹)', 'Status', 'Date'])
             for exp in expenses:
                 writer.writerow([
-                    exp.id, exp.vehicle.registration_number, exp.expense_type, exp.category, exp.amount, exp.status, exp.date
+                    exp.id,
+                    exp.vehicle.registration_number if exp.vehicle else 'N/A',
+                    exp.expense_type,
+                    exp.category,
+                    exp.amount,
+                    exp.status,
+                    exp.date
                 ])
             return response
 
         data = [{
             "id": exp.id,
-            "vehicle": exp.vehicle.registration_number,
+            "vehicle": exp.vehicle.registration_number if exp.vehicle else 'N/A',
             "expense_type": exp.expense_type,
             "category": exp.category,
             "amount": float(exp.amount),
@@ -200,15 +206,112 @@ class FuelAnalyticsView(APIView):
 class ExpenseAnalyticsView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self, request):
+        import datetime
+        from django.db.models import Sum
+
+        # 1. Expenses by Category
+        cat_mapping = {
+            'Fuel': 'Fuel',
+            'Toll': 'Tolls',
+            'Repair': 'Maintenance',
+            'Maintenance': 'Maintenance',
+            'Insurance': 'Insurance',
+            'Other': 'Miscellaneous',
+        }
+        totals = {}
+        for item in Expense.objects.filter(status='Approved'):
+            cat = cat_mapping.get(item.expense_type, 'Miscellaneous')
+            totals[cat] = totals.get(cat, 0.0) + float(item.amount)
+        
+        expensesByCategory = []
+        for cat in ['Fuel', 'Maintenance', 'Insurance', 'Tolls', 'Miscellaneous']:
+            expensesByCategory.append({"name": cat, "value": round(totals.get(cat, 0.0), 2)})
+
+        # 2. Monthly Expenses (last 6 months)
+        months_list = []
+        today = datetime.date.today()
+        for i in range(5, -1, -1):
+            m = today.month - i
+            y = today.year
+            while m <= 0:
+                m += 12
+                y -= 1
+            month_name = datetime.date(y, m, 1).strftime('%b')
+            months_list.append((y, m, month_name))
+        
+        monthlyExpenses = []
+        for y, m, name in months_list:
+            val = Expense.objects.filter(status='Approved', date__year=y, date__month=m).aggregate(total=Sum('amount'))['total'] or 0.0
+            monthlyExpenses.append({"name": name, "value": round(float(val), 2)})
+
+        # 3. Vehicle Expenses
+        vehicle_totals = {}
+        for item in Expense.objects.filter(status='Approved'):
+            reg = item.vehicle.registration_number if item.vehicle else 'N/A'
+            vehicle_totals[reg] = vehicle_totals.get(reg, 0.0) + float(item.amount)
+        vehicleExpenses = [{"name": reg, "value": round(val, 2)} for reg, val in vehicle_totals.items()]
+
+        # 4. Department Expenses (mapped from vehicle_type)
+        dept_totals = {}
+        for item in Expense.objects.filter(status='Approved'):
+            if item.vehicle:
+                vtype = item.vehicle.vehicle_type or ''
+                if 'heavy' in vtype.lower():
+                    dept = 'Heavy Logistics'
+                elif 'van' in vtype.lower() or 'delivery' in vtype.lower():
+                    dept = 'Last Mile Delivery'
+                else:
+                    dept = 'Support & Shuttle'
+            else:
+                dept = 'Support & Shuttle'
+            dept_totals[dept] = dept_totals.get(dept, 0.0) + float(item.amount)
+        
+        departmentExpenses = [{"name": dept, "value": round(val, 2)} for dept, val in dept_totals.items()]
+        for dept in ['Heavy Logistics', 'Last Mile Delivery', 'Support & Shuttle']:
+            if not any(d['name'] == dept for d in departmentExpenses):
+                departmentExpenses.append({"name": dept, "value": 0.0})
+
+        # 5. Cards data
+        approved_qs = Expense.objects.filter(status='Approved')
+        highest = approved_qs.order_by('-amount').first()
+        lowest = approved_qs.order_by('amount').first()
+        
+        total_approved = sum(totals.values())
+        unique_months = len(set((e.date.year, e.date.month) for e in approved_qs))
+        avg_monthly = total_approved / unique_months if unique_months > 0 else total_approved
+        
+        top_cat = max(totals.items(), key=lambda x: x[1]) if totals else ('None', 0.0)
+        pct = (top_cat[1] / total_approved * 100) if total_approved > 0 else 0.0
+        
+        cards = {
+            "highestExpense": {
+                "label": "HIGHEST LOGGED COST",
+                "value": f"₹{highest.amount:,.2f}" if highest else "₹0.00",
+                "extra": highest.description if highest and highest.description else "No approved costs"
+            },
+            "lowestExpense": {
+                "label": "LOWEST LOGGED COST",
+                "value": f"₹{lowest.amount:,.2f}" if lowest else "₹0.00",
+                "extra": lowest.description if lowest and lowest.description else "No approved costs"
+            },
+            "averageMonthlyExpense": {
+                "label": "AVERAGE MONTHLY OUTFLOW",
+                "value": f"₹{avg_monthly:,.2f}",
+                "extra": "Aggregated operating costs"
+            },
+            "expenseDistribution": {
+                "label": "TOP EXPENSE CATEGORY",
+                "value": f"{top_cat[0]} ({pct:.1f}%)" if top_cat[0] != 'None' else 'None',
+                "extra": f"Followed by other operating costs"
+            }
+        }
+
         return Response({
-            "totalAmount": 85000.0,
-            "categories": [
-                {"name": "Fuel", "value": 45000.0},
-                {"name": "Maintenance", "value": 12400.0},
-                {"name": "Toll", "value": 5000.0},
-                {"name": "Insurance", "value": 15000.0},
-                {"name": "Other", "value": 7600.0},
-            ]
+            "expensesByCategory": expensesByCategory,
+            "monthlyExpenses": monthlyExpenses,
+            "vehicleExpenses": vehicleExpenses,
+            "departmentExpenses": departmentExpenses,
+            "cards": cards
         })
 
 class CustomReportView(APIView):

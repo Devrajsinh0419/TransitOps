@@ -23,23 +23,6 @@ apiClient.interceptors.request.use(
       }
     }
 
-    if (config.url) {
-      const parts = config.url.split('?');
-      let path = parts[0];
-      const listEndpoints = [
-        '/fuel-logs',
-        '/vehicles',
-        '/drivers',
-        '/trips',
-        '/expenses',
-        '/maintenance'
-      ];
-      if (listEndpoints.includes(path)) {
-        path += '/';
-      }
-      config.url = path + (parts[1] ? '?' + parts[1] : '');
-    }
-
     return config;
   },
   (error: AxiosError) => {

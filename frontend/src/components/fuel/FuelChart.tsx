@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { FuelLog } from '@/types/fuel';
-import { BarChart3, TrendingUp, DollarSign } from 'lucide-react';
+import { BarChart3, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatCurrency } from '@/lib/helpers';
 
 interface FuelChartProps {
   logs: FuelLog[];
@@ -44,25 +45,28 @@ export function FuelChart({ logs }: FuelChartProps) {
             {chartData.map((d, idx) => {
               const heightPct = (d.totalCost / maxCost) * 100;
               return (
-                <div key={d.id} className="flex flex-col items-center flex-1 group relative">
-                  {/* Tooltip */}
-                  <div className="absolute -top-8 bg-foreground text-background text-[9px] font-black py-0.5 px-1.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap">
-                    ${d.totalCost.toFixed(2)}
+                <div key={d.id} className="flex flex-col items-center flex-1 h-full group relative">
+                  {/* Bar container */}
+                  <div className="relative w-full flex-1 flex items-end justify-center min-h-[100px]">
+                    {/* Tooltip */}
+                    <div className="absolute -top-8 bg-foreground text-background text-[9px] font-black py-0.5 px-1.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap">
+                      {formatCurrency(d.totalCost)}
+                    </div>
+                    
+                    {/* Bar */}
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: `${heightPct}%` }}
+                      transition={{ duration: 0.5, delay: idx * 0.05 }}
+                      className="w-8 sm:w-10 bg-primary/20 hover:bg-primary border border-primary/25 rounded-t-lg transition-colors cursor-pointer relative"
+                    />
                   </div>
-                  
-                  {/* Bar */}
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: `${heightPct}%` }}
-                    transition={{ duration: 0.5, delay: idx * 0.05 }}
-                    className="w-8 sm:w-10 bg-primary/20 hover:bg-primary border border-primary/25 rounded-t-lg transition-colors cursor-pointer relative"
-                  />
                   
                   {/* Label */}
                   <span className="text-[9px] font-bold text-muted-foreground mt-2 truncate w-14 text-center">
                     {d.vehicleRegistration}
                   </span>
-                  <span className="text-[8px] text-muted-foreground/60">
+                  <span className="text-[8px] text-muted-foreground/60 mb-2">
                     {d.date.slice(5)}
                   </span>
                 </div>

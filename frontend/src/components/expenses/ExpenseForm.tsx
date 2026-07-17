@@ -7,19 +7,79 @@ import { expenseSchema, ExpenseSchemaInput } from '@/validation/expense.schema';
 import { Button } from '../ui/Button';
 import { Input } from '../forms/Input';
 import { Select } from '../forms/Select';
-import { activeVehicles } from '@/hooks/useVehicles';
-import { activeTrips } from '@/hooks/useTrips';
+import { activeVehicles as DEFAULT_VEHICLES } from '@/hooks/useVehicles';
+import { activeTrips as DEFAULT_TRIPS } from '@/hooks/useTrips';
 import { Save, ArrowLeft, Receipt, Paperclip, X } from 'lucide-react';
 import Link from 'next/link';
 import apiClient from '@/services/axios';
 import { toast } from 'sonner';
+import { vehicleService } from '@/services/vehicle.service';
+import { tripService } from '@/services/trip.service';
 
 interface ExpenseFormProps {
   onSubmit: (data: ExpenseSchemaInput) => void;
   isLoading?: boolean;
 }
 
+// Mappers to convert backend models to dropdown options
+const mapBackendVehicle = (v: any) => ({
+  id: String(v.id),
+  name: v.vehicle_name || `${v.make} ${v.model}`,
+  registrationNumber: v.registration_number,
+});
+
+const mapBackendTrip = (t: any) => ({
+  id: String(t.id),
+  tripNumber: t.trip_number || t.tripNumber || `TRP-${t.id}`,
+  tripName: t.tripName || t.trip_name || `Trip ${t.id}`,
+});
+
 export function ExpenseForm({ onSubmit, isLoading = false }: ExpenseFormProps) {
+  const [vehicles, setVehicles] = React.useState<any[]>([]);
+  const [trips, setTrips] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    let active = true;
+    const loadData = async () => {
+      try {
+        const [vehiclesRes, tripsRes] = await Promise.all([
+          vehicleService.getVehicles().catch(() => []),
+          tripService.getTrips().catch(() => []),
+        ]);
+        
+        if (!active) return;
+        
+        const rawVehicles = Array.isArray(vehiclesRes) ? vehiclesRes : (vehiclesRes as any).results || [];
+        const rawTrips = Array.isArray(tripsRes) ? tripsRes : (tripsRes as any).results || [];
+        
+        const backendVehicles = rawVehicles.map(mapBackendVehicle);
+        const backendTrips = rawTrips.map(mapBackendTrip);
+        
+        // Merge backend data with default mock data, ensuring no duplicates
+        const mergedVehicles = [
+          ...backendVehicles,
+          ...DEFAULT_VEHICLES.map(v => ({ id: String(v.id), name: v.name, registrationNumber: v.registrationNumber })).filter(
+            (mv) => !backendVehicles.some((bv: any) => bv.registrationNumber.toLowerCase() === mv.registrationNumber.toLowerCase())
+          ),
+        ];
+        
+        const mergedTrips = [
+          ...backendTrips,
+          ...DEFAULT_TRIPS.map(t => ({ id: String(t.id), tripNumber: t.tripNumber, tripName: t.tripName })).filter(
+            (mt) => !backendTrips.some((bt: any) => bt.tripNumber.toLowerCase() === mt.tripNumber.toLowerCase())
+          ),
+        ];
+        
+        setVehicles(mergedVehicles);
+        setTrips(mergedTrips);
+      } catch (error) {
+        console.error('Failed to load assets', error);
+      }
+    };
+    loadData();
+    return () => { active = false; };
+  }, []);
+
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [uploading, setUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -124,7 +184,7 @@ export function ExpenseForm({ onSubmit, isLoading = false }: ExpenseFormProps) {
                 onChange={(e) => setValue('vehicleId', e.target.value)}
                 options={[
                   { value: '', label: 'No vehicle' },
-                  ...activeVehicles.map((v) => ({
+                  ...vehicles.map((v) => ({
                     value: v.id,
                     label: `${v.registrationNumber} - ${v.name}`,
                   })),
@@ -140,7 +200,7 @@ export function ExpenseForm({ onSubmit, isLoading = false }: ExpenseFormProps) {
                 onChange={(e) => setValue('tripId', e.target.value)}
                 options={[
                   { value: '', label: 'No trip' },
-                  ...activeTrips.map((t) => ({
+                  ...trips.map((t) => ({
                     value: t.id,
                     label: `${t.tripNumber} - ${t.tripName}`,
                   })),
