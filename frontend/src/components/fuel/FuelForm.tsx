@@ -7,20 +7,98 @@ import { fuelSchema, FuelSchemaInput } from '@/validation/fuel.schema';
 import { Button } from '../ui/Button';
 import { Input } from '../forms/Input';
 import { Select } from '../forms/Select';
-import { activeVehicles } from '@/hooks/useVehicles';
-import { activeDrivers } from '@/hooks/useDrivers';
-import { activeTrips } from '@/hooks/useTrips';
+import { activeVehicles as DEFAULT_VEHICLES } from '@/hooks/useVehicles';
+import { activeDrivers as DEFAULT_DRIVERS } from '@/hooks/useDrivers';
+import { activeTrips as DEFAULT_TRIPS } from '@/hooks/useTrips';
 import { Save, ArrowLeft, Fuel, FileText, X } from 'lucide-react';
 import Link from 'next/link';
 import apiClient from '@/services/axios';
 import { toast } from 'sonner';
+import { vehicleService } from '@/services/vehicle.service';
+import { driverService } from '@/services/driver.service';
+import { tripService } from '@/services/trip.service';
 
 interface FuelFormProps {
   onSubmit: (data: FuelSchemaInput) => void;
   isLoading?: boolean;
 }
 
+// Mappers to convert backend models to dropdown options
+const mapBackendVehicle = (v: any) => ({
+  id: String(v.id),
+  name: v.vehicle_name || `${v.make} ${v.model}`,
+  registrationNumber: v.registration_number,
+});
+
+const mapBackendDriver = (d: any) => ({
+  id: String(d.id),
+  name: d.name,
+});
+
+const mapBackendTrip = (t: any) => ({
+  id: String(t.id),
+  tripNumber: t.trip_number || t.tripNumber || `TRP-${t.id}`,
+  tripName: t.tripName || t.trip_name || `Trip ${t.id}`,
+});
+
 export function FuelForm({ onSubmit, isLoading = false }: FuelFormProps) {
+  const [vehicles, setVehicles] = React.useState<any[]>([]);
+  const [drivers, setDrivers] = React.useState<any[]>([]);
+  const [trips, setTrips] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    let active = true;
+    const loadData = async () => {
+      try {
+        const [vehiclesRes, driversRes, tripsRes] = await Promise.all([
+          vehicleService.getVehicles().catch(() => []),
+          driverService.getDrivers().catch(() => []),
+          tripService.getTrips().catch(() => []),
+        ]);
+        
+        if (!active) return;
+        
+        const rawVehicles = Array.isArray(vehiclesRes) ? vehiclesRes : (vehiclesRes as any).results || [];
+        const rawDrivers = Array.isArray(driversRes) ? driversRes : (driversRes as any).results || [];
+        const rawTrips = Array.isArray(tripsRes) ? tripsRes : (tripsRes as any).results || [];
+        
+        const backendVehicles = rawVehicles.map(mapBackendVehicle);
+        const backendDrivers = rawDrivers.map(mapBackendDriver);
+        const backendTrips = rawTrips.map(mapBackendTrip);
+        
+        // Merge backend data with default mock data, ensuring no duplicates
+        const mergedVehicles = [
+          ...backendVehicles,
+          ...DEFAULT_VEHICLES.map(v => ({ id: String(v.id), name: v.name, registrationNumber: v.registrationNumber })).filter(
+            (mv) => !backendVehicles.some((bv: any) => bv.registrationNumber.toLowerCase() === mv.registrationNumber.toLowerCase())
+          ),
+        ];
+        
+        const mergedDrivers = [
+          ...backendDrivers,
+          ...DEFAULT_DRIVERS.map(d => ({ id: String(d.id), name: d.name })).filter(
+            (md) => !backendDrivers.some((bd: any) => bd.name.toLowerCase() === md.name.toLowerCase())
+          ),
+        ];
+        
+        const mergedTrips = [
+          ...backendTrips,
+          ...DEFAULT_TRIPS.map(t => ({ id: String(t.id), tripNumber: t.tripNumber, tripName: t.tripName })).filter(
+            (mt) => !backendTrips.some((bt: any) => bt.tripNumber.toLowerCase() === mt.tripNumber.toLowerCase())
+          ),
+        ];
+        
+        setVehicles(mergedVehicles);
+        setDrivers(mergedDrivers);
+        setTrips(mergedTrips);
+      } catch (error) {
+        console.error('Failed to load assets', error);
+      }
+    };
+    loadData();
+    return () => { active = false; };
+  }, []);
+
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [uploading, setUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -114,7 +192,7 @@ export function FuelForm({ onSubmit, isLoading = false }: FuelFormProps) {
                 onChange={(e) => setValue('vehicleId', e.target.value)}
                 options={[
                   { value: '', label: 'Select vehicle...' },
-                  ...activeVehicles.map((v) => ({
+                  ...vehicles.map((v) => ({
                     value: v.id,
                     label: `${v.registrationNumber} - ${v.name}`,
                   })),
@@ -133,7 +211,7 @@ export function FuelForm({ onSubmit, isLoading = false }: FuelFormProps) {
                 onChange={(e) => setValue('driverId', e.target.value)}
                 options={[
                   { value: '', label: 'Select driver...' },
-                  ...activeDrivers.map((d) => ({
+                  ...drivers.map((d) => ({
                     value: d.id,
                     label: d.name,
                   })),
@@ -152,7 +230,7 @@ export function FuelForm({ onSubmit, isLoading = false }: FuelFormProps) {
                 onChange={(e) => setValue('tripId', e.target.value)}
                 options={[
                   { value: '', label: 'Select active trip...' },
-                  ...activeTrips.map((t) => ({
+                  ...trips.map((t) => ({
                     value: t.id,
                     label: `${t.tripNumber} - ${t.tripName}`,
                   })),
