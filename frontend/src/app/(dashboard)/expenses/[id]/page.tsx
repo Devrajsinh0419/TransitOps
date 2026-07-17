@@ -9,6 +9,7 @@ import { ArrowLeft, Landmark, Calendar, Tag, DollarSign, User, ShieldAlert, File
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/helpers';
+import { expenseService } from '@/services/expense.service';
 
 export default function ExpenseDetailsPage() {
   const params = useParams();
@@ -46,16 +47,26 @@ export default function ExpenseDetailsPage() {
     );
   }
 
-  const handleApprove = () => {
-    setCurrentStatus('approved');
-    setApprovedBy('Auditor Sarah');
-    toast.success(`Expense ${expense.expenseId} has been APPROVED and cleared for reimbursement.`);
+  const handleApprove = async () => {
+    try {
+      await expenseService.updateExpense(id, { status: 'Approved' });
+      setCurrentStatus('approved');
+      setApprovedBy('Auditor Sarah');
+      toast.success(`Expense ${expense.expenseId} has been APPROVED and cleared for reimbursement.`);
+    } catch (err: any) {
+      toast.error('Failed to approve reimbursement');
+    }
   };
 
-  const handleReject = () => {
-    setCurrentStatus('rejected');
-    setApprovedBy(null);
-    toast.error(`Expense ${expense.expenseId} has been REJECTED.`);
+  const handleReject = async () => {
+    try {
+      await expenseService.updateExpense(id, { status: 'Rejected' });
+      setCurrentStatus('rejected');
+      setApprovedBy(null);
+      toast.error(`Expense ${expense.expenseId} has been REJECTED.`);
+    } catch (err: any) {
+      toast.error('Failed to reject cost');
+    }
   };
 
   return (

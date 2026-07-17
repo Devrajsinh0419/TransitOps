@@ -79,6 +79,16 @@ class ExpenseSerializer(serializers.ModelSerializer):
         if 'vendor' in data:
             data['vendor'] = data['vendor']
 
+        # Normalize status
+        if 'status' in data:
+            status_val = str(data['status']).lower()
+            status_mapping = {
+                'pending': 'Pending',
+                'approved': 'Approved',
+                'rejected': 'Rejected',
+            }
+            data['status'] = status_mapping.get(status_val, 'Pending')
+
         # Handle attachment URL (pre-upload flow)
         attachment = data.get('attachmentUrl') or data.get('receipt')
         if attachment and isinstance(attachment, str):
