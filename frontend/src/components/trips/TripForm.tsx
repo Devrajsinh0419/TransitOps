@@ -10,6 +10,8 @@ import { Input } from '../forms/Input';
 import { Select } from '../forms/Select';
 import { TripSummaryCard } from './TripSummaryCard';
 import { AlertCircle, ArrowLeft, ArrowRight, ShieldAlert, CheckCircle, Scale, Calendar, ShieldCheck } from 'lucide-react';
+import { vehicleService } from '@/services/vehicle.service';
+import { driverService } from '@/services/driver.service';
 
 interface TripFormProps {
   initialValues?: Partial<TripSchemaInput>;
@@ -17,23 +19,111 @@ interface TripFormProps {
   isLoading?: boolean;
 }
 
-// Simulated active pool data for vehicles and drivers
-const fleetVehicles = [
+// Simulated active pool data for vehicles and drivers as fallbacks
+const DEFAULT_FLEET_VEHICLES = [
   { id: 'veh-1', name: 'Volvo FH16 Globetrotter', registration: 'TRK-491-A', capacity: 45000, odometer: 148900, status: 'available' },
   { id: 'veh-2', name: 'Ford Transit Cargo Van', registration: 'VAN-102-X', capacity: 3500, odometer: 42100, status: 'on_trip' },
   { id: 'veh-3', name: 'Peterbilt 579 Semi-Truck', registration: 'TRK-982-Z', capacity: 50000, odometer: 89000, status: 'available' },
   { id: 'veh-4', name: 'Freightliner Cascadia', registration: 'TRK-111-B', capacity: 48000, odometer: 110200, status: 'maintenance' },
 ];
 
-const rosterDrivers = [
+const DEFAULT_ROSTER_DRIVERS = [
   { id: 'drv-1', name: 'Marcus Miller', phone: '+15550192831', licenseExpiry: '2027-02-10', safetyScore: 98, status: 'available', avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
   { id: 'drv-2', name: 'David Richardson', phone: '+15550228391', licenseExpiry: '2026-09-12', safetyScore: 94, status: 'on_trip', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80' },
   { id: 'drv-3', name: 'Amanda Sterling', phone: '+15550482910', licenseExpiry: '2026-07-30', safetyScore: 91, status: 'available', avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80' },
   { id: 'drv-4', name: 'Robert Vance', phone: '+15550992831', licenseExpiry: '2026-06-10', safetyScore: 84, status: 'suspended', avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80' },
 ];
 
+// Mappers to convert backend models to TripForm compatible options
+const mapBackendVehicle = (v: any) => {
+  let status = 'available';
+  const backendStatus = v.status?.toLowerCase();
+  if (backendStatus === 'available') {
+    status = 'available';
+  } else if (backendStatus === 'on trip' || backendStatus === 'on_trip') {
+    status = 'on_trip';
+  } else if (backendStatus === 'in shop' || backendStatus === 'maintenance' || backendStatus === 'in_shop' || backendStatus === 'in-shop') {
+    status = 'maintenance';
+  }
+
+  return {
+    id: String(v.id),
+    name: v.vehicle_name || `${v.make} ${v.model}`,
+    registration: v.registration_number,
+    capacity: parseFloat(v.max_load_capacity) || 0,
+    odometer: parseInt(v.odometer) || 0,
+    status: status
+  };
+};
+
+const mapBackendDriver = (d: any) => {
+  let status = 'available';
+  const backendStatus = d.status?.toLowerCase();
+  if (backendStatus === 'available') {
+    status = 'available';
+  } else if (backendStatus === 'on trip' || backendStatus === 'on_trip') {
+    status = 'on_trip';
+  } else if (backendStatus === 'suspended') {
+    status = 'suspended';
+  }
+
+  return {
+    id: String(d.id),
+    name: d.name,
+    phone: d.contact_number || '',
+    licenseExpiry: d.license_expiry || '',
+    safetyScore: parseFloat(d.safety_score) || 0,
+    status: status,
+    avatarUrl: d.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.name)}&background=random`
+  };
+};
+
 export function TripForm({ initialValues, onSubmit, isLoading = false }: TripFormProps) {
   const [step, setStep] = React.useState(0);
+  const [fleetVehicles, setFleetVehicles] = React.useState<any[]>(DEFAULT_FLEET_VEHICLES);
+  const [rosterDrivers, setRosterDrivers] = React.useState<any[]>(DEFAULT_ROSTER_DRIVERS);
+
+  React.useEffect(() => {
+    let active = true;
+    const loadData = async () => {
+      try {
+        const [vehiclesRes, driversRes] = await Promise.all([
+          vehicleService.getVehicles(),
+          driverService.getDrivers(),
+        ]);
+        
+        if (!active) return;
+        
+        const rawVehicles = Array.isArray(vehiclesRes) ? vehiclesRes : (vehiclesRes as any).results || [];
+        const rawDrivers = Array.isArray(driversRes) ? driversRes : (driversRes as any).results || [];
+        
+        const backendVehicles = rawVehicles.map(mapBackendVehicle);
+        const backendDrivers = rawDrivers.map(mapBackendDriver);
+        
+        // Merge backend data with default mock data, ensuring no duplicates by registration/name
+        const mergedVehicles = [
+          ...backendVehicles,
+          ...DEFAULT_FLEET_VEHICLES.filter(
+            (mv) => !backendVehicles.some((bv: any) => bv.registration.toLowerCase() === mv.registration.toLowerCase())
+          ),
+        ];
+        
+        const mergedDrivers = [
+          ...backendDrivers,
+          ...DEFAULT_ROSTER_DRIVERS.filter(
+            (md) => !backendDrivers.some((bd: any) => bd.name.toLowerCase() === md.name.toLowerCase())
+          ),
+        ];
+        
+        setFleetVehicles(mergedVehicles);
+        setRosterDrivers(mergedDrivers);
+      } catch (error) {
+        console.error('Failed to load vehicles or drivers', error);
+      }
+    };
+    loadData();
+    return () => { active = false; };
+  }, []);
 
   const steps = [
     'Trip Info',
